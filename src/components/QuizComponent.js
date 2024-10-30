@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { generateQuiz, getQuiz } from '@/api/QuizApi';
 import apiConfig from '@/config/apiConfig';
 
-const QuizComponent = () => {
+export default function QuizComponent() {
     const [quizUuid, setQuizUuid] = useState(null);
     const [quizData, setQuizData] = useState(null);
 
@@ -62,5 +62,3 @@ const QuizComponent = () => {
         </div>
     );
 };
-
-export default QuizComponent;
