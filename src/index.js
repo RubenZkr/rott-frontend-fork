@@ -1,13 +1,38 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createTheme, CssBaseline, ThemeProvider } from '@mui/material';
+import GenerateQuiz from '@/pages/GenerateQuiz';
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
+const theme = createTheme({
+  typography: {
+    fontFamily: 'Lato',
+    fontSize: 18,
+  },
+  palette: {
+    primary: {
+      main: '#223343',
+    },
+    secondary: {
+      main: '#9ea601',
+    },
+  },
+});
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: GenerateQuiz(),
+  },
+]);
+
+ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <App />
+    <CssBaseline />
+    <ThemeProvider theme={theme}>
+      <RouterProvider router={router} />
+    </ThemeProvider>
   </React.StrictMode>
 );
 
