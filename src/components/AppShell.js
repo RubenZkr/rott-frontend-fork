@@ -16,7 +16,7 @@ export default function AppShell({ children: {appBarButtons, body} }) {
             </Container>
             <AppBar position="static">
                 <Container>
-                    <Toolbar disableGutters="true">
+                    <Toolbar disableGutters={true}>
                         { appBarButtons }
                     </Toolbar>
                 </Container>
