@@ -23,7 +23,7 @@ const theme = createTheme({
 const router = createBrowserRouter([
   {
     path: "/",
-    element: GenerateQuiz(),
+    element: <GenerateQuiz />,
   },
 ]);
 
