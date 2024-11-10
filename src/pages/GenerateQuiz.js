@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import AppBarButton from '@/components/AppBar/AppBarButton';
 import AppShell from '@/components/AppShell';
 import "@fontsource/lato";
-import { Button, IconButton, TextField } from '@mui/material';
+import { Box, Button, CircularProgress, IconButton, TextField, Typography } from '@mui/material';
 import { Add, AutoAwesome, Delete, Refresh } from '@mui/icons-material';
 import { styled, useTheme } from '@mui/material/styles';
 
@@ -11,6 +11,7 @@ export default function GenerateQuiz() {
     const [teachingMaterials, setTeachingMaterials] = useState([]);
     const [questionCount, setQuestionCount] = useState(5);
     const theme = useTheme();
+    const [waitingForGenerationStart, setWaitingForGenerationStart] = useState(false)
 
     function resetState() {
         setSubject('');
@@ -22,12 +23,22 @@ export default function GenerateQuiz() {
         setTeachingMaterials(teachingMaterials.filter((listTeachingMaterial) => listTeachingMaterial !== teachingMaterial));
     }
 
+    function startQuizGeneration() {
+        setWaitingForGenerationStart(true);
+    }
+
     return (
         <AppShell>{{
             appBarButtons: [
-                <AppBarButton onClick={resetState}><Refresh />&nbsp;Begin opnieuw</AppBarButton>,
+                !waitingForGenerationStart && <AppBarButton onClick={resetState}><Refresh />&nbsp;Begin opnieuw</AppBarButton>,
             ],
-            body: <>
+            body: waitingForGenerationStart ? <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <CircularProgress />
+                <Box sx={{ p: 2 }}>
+                    <Typography>Moment, het genereren wordt gestart...</Typography>
+                </Box>
+            </Box> : 
+            <>
                 <h2>Nieuwe quiz</h2>
                 <p>Genereer in stappen een quiz.</p>
                 
@@ -76,13 +87,8 @@ export default function GenerateQuiz() {
 
                 <h3>Stap 4. Genereer quiz:</h3>
                 <p>Let op dat het genereren enige tijd kan duren. Na het genereren kunt u de quiz bewerken en/of exporteren voor Brightspace.</p>
-                <Button component="label" role={undefined} variant="contained" tabIndex={-1} startIcon={<AutoAwesome />}>
+                <Button component="label" role={undefined} variant="contained" tabIndex={-1} startIcon={<AutoAwesome />} onClick={startQuizGeneration}>
                     Genereer quiz
-                    <VisuallyHiddenInput
-                        type="file"
-                        onChange={(event) => console.log(event.target.files)}
-                        multiple
-                    />
                 </Button>
             </>
         }}</AppShell>

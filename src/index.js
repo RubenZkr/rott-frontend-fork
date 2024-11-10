@@ -9,6 +9,9 @@ const theme = createTheme({
   typography: {
     fontFamily: 'Lato',
     fontSize: 18,
+    button: {
+      textTransform: 'none'
+    }
   },
   palette: {
     primary: {

@@ -2,6 +2,7 @@ import Container from '@mui/material/Container';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Divider from '@mui/material/Divider';
+import { Box } from '@mui/material';
 
 export default function AppShell({ children: {appBarButtons, body} }) {
     return (
@@ -21,9 +22,11 @@ export default function AppShell({ children: {appBarButtons, body} }) {
                     </Toolbar>
                 </Container>
             </AppBar>
-            <Container>
-                { body }
-            </Container>
+            <Box sx={{ p: 4 }}>
+                <Container>
+                    { body }
+                </Container>
+            </Box>
         </>
     );
 };
