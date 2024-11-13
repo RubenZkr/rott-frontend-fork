@@ -5,6 +5,8 @@ import "@fontsource/lato";
 import { Box, Button, CircularProgress, IconButton, TextField, Typography } from '@mui/material';
 import { Add, AutoAwesome, Delete, Refresh } from '@mui/icons-material';
 import { styled, useTheme } from '@mui/material/styles';
+import { generateQuiz, getQuizProgress } from '@/api/QuizApi';
+import { useNavigate } from "react-router-dom";
 
 export default function GenerateQuiz() {
     const [subject, setSubject] = useState('');
@@ -12,6 +14,8 @@ export default function GenerateQuiz() {
     const [questionCount, setQuestionCount] = useState(5);
     const theme = useTheme();
     const [waitingForGenerationStart, setWaitingForGenerationStart] = useState(false)
+    const [progressMessage, setProgressMessage] = useState("")
+    const navigate = useNavigate();
 
     function resetState() {
         setSubject('');
@@ -23,8 +27,32 @@ export default function GenerateQuiz() {
         setTeachingMaterials(teachingMaterials.filter((listTeachingMaterial) => listTeachingMaterial !== teachingMaterial));
     }
 
-    function startQuizGeneration() {
+    async function startQuizGeneration() {
+        setProgressMessage("Starten...");
+        const formData = new FormData();
+        formData.append('subject', subject);
+        formData.append('number', questionCount);
+        for (let key in teachingMaterials) {
+            formData.append(`files`, teachingMaterials[key]);
+        }
+        const generateResponse = await generateQuiz(formData);
+        const quizUuid = generateResponse.quiz_uuid;
+        // TODO: add error handling
+
         setWaitingForGenerationStart(true);
+        for (;;) {
+            const progressResponse = await getQuizProgress(quizUuid);
+            setProgressMessage(progressResponse.progress);
+            
+            if (progressResponse.progress === null || progressResponse.progress === "Completed") {
+                break;
+            }
+
+            await new Promise(r => setTimeout(r, 5000));
+        }
+
+        // Generation is done, forward user to result page.
+        navigate(`/quiz/${quizUuid}`);
     }
 
     return (
@@ -35,7 +63,8 @@ export default function GenerateQuiz() {
             body: waitingForGenerationStart ? <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <CircularProgress />
                 <Box sx={{ p: 2 }}>
-                    <Typography>Moment, het genereren wordt gestart...</Typography>
+                    <Typography>Moment, het genereren is bezig...</Typography>
+                    <Typography>Status: {progressMessage}</Typography>
                 </Box>
             </Box> : 
             <>

@@ -11,7 +11,7 @@ export default function AppShell({ children: {appBarButtons, body} }) {
             <Container sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                 <div style={{ display: 'flex', alignItems: 'center'}}>
                     <h1>H-AI</h1>
-                    <img alt="Logo van De Haagse Hogeschool" src='hhs-logo-groen.png' style={{ height: '64px', margin: '0 24px' }}></img>
+                    <img alt="Logo van De Haagse Hogeschool" src='/hhs-logo-groen.png' style={{ height: '64px', margin: '0 24px' }}></img>
                 </div>
                 <p>Welkom bij H-AI, de applicatie die assisteert met het maken van korte quizzes</p>
             </Container>

@@ -4,6 +4,7 @@ import reportWebVitals from './reportWebVitals';
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { createTheme, CssBaseline, ThemeProvider } from '@mui/material';
 import GenerateQuiz from '@/pages/GenerateQuiz';
+import ViewQuiz from '@/pages/ViewQuiz';
 
 const theme = createTheme({
   typography: {
@@ -27,6 +28,10 @@ const router = createBrowserRouter([
   {
     path: "/",
     element: <GenerateQuiz />,
+  },
+  {
+    path: "/quiz/:quizUuid",
+    element: <ViewQuiz />,
   },
 ]);
 
