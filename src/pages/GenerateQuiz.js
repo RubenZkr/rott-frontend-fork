@@ -35,20 +35,20 @@ export default function GenerateQuiz() {
         for (let key in teachingMaterials) {
             formData.append(`files`, teachingMaterials[key]);
         }
+
+        setWaitingForGenerationStart(true);
         const generateResponse = await generateQuiz(formData);
         const quizUuid = generateResponse.quiz_uuid;
         // TODO: add error handling
 
-        setWaitingForGenerationStart(true);
         for (;;) {
+            await new Promise(r => setTimeout(r, 5000));
             const progressResponse = await getQuizProgress(quizUuid);
             setProgressMessage(progressResponse.progress);
             
             if (progressResponse.progress === null || progressResponse.progress === "Completed") {
                 break;
             }
-
-            await new Promise(r => setTimeout(r, 5000));
         }
 
         // Generation is done, forward user to result page.
