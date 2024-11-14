@@ -3,14 +3,16 @@ import AppShell from '@/components/AppShell';
 import "@fontsource/lato";
 import { Box, CircularProgress, Typography } from '@mui/material';
 import { getQuiz } from '@/api/QuizApi';
-import { useParams } from 'react-router-dom';
-import { CheckBox, CheckBoxOutlineBlank } from '@mui/icons-material';
+import { useNavigate, useParams } from 'react-router-dom';
+import { ArrowBack, BackHand, CheckBox, CheckBoxOutlineBlank } from '@mui/icons-material';
+import AppBarButton from '@/components/AppBar/AppBarButton';
 
 export default function ViewQuiz() {
     //const theme = useTheme();
     const [downloadingQuiz, setDownloadingQuiz] = useState(true)
     const [quiz, setQuiz] = useState(null)
     let { quizUuid } = useParams();
+    const navigate = useNavigate();
 
     useEffect(() => {
         console.log(quizUuid);
@@ -57,6 +59,9 @@ export default function ViewQuiz() {
 
     return (
         <AppShell>{{
+            appBarButtons: [
+                <AppBarButton onClick={() => { navigate('/') }}><ArrowBack />&nbsp;Begin opnieuw</AppBarButton>
+            ],
             body: downloadingQuiz || !quiz ? <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <CircularProgress />
                 <Box sx={{ p: 2 }}>
