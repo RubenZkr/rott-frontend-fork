@@ -46,7 +46,7 @@ export default function GenerateQuiz() {
             const progressResponse = await getQuizProgress(quizUuid);
             setProgressMessage(progressResponse.progress);
             
-            if (progressResponse.progress === null || progressResponse.progress === "Completed") {
+            if (progressResponse.progress === null || progressResponse.progress === "Quiz generatie voltooid") {
                 break;
             }
         }

@@ -4,4 +4,4 @@ export const generateQuiz = (formData) => postFormData('/quizzes/generate', form
 export const getQuiz = (quizUuid) => fetchApi(`/quizzes/${quizUuid}`);
 export const exportQuiz = (quizUuid) => fetchApi(`/quizzes/${quizUuid}/export`);
 export const regenerateQuestion = (quizUuid, questionId) => fetchApi(`/quizzes/${quizUuid}/regenerate_question/${questionId}`, 'POST');
-export const getQuizProgress = (quizUuid) => fetchApi(`/quizzes/${quizUuid}/progress/generate`);
+export const getQuizProgress = (quizUuid) => fetchApi(`/quizzes/${quizUuid}/progress`);
