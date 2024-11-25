@@ -109,6 +109,9 @@ export default function GenerateQuiz() {
                     label="Aantal vragen"
                     type="number"
                     value={questionCount.toString()}
+                    slotProps={{
+                        htmlInput: { min: 5, max: 30 },
+                    }}
                     onChange={(e) => setQuestionCount(e.target.value)}
                 />
 
