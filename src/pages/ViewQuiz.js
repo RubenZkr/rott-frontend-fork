@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import AppShell from '@/components/AppShell';
 import "@fontsource/lato";
-import { Box, Button, CircularProgress, Typography } from '@mui/material';
-import { getQuiz, regenerateQuestion, exportQuiz } from '@/api/QuizApi';
+import { Box, CircularProgress, IconButton, Typography } from '@mui/material';
+import { getQuiz, regenerateQuestion, exportQuiz, getQuizProgress } from '@/api/QuizApi';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowBack, CheckBox, CheckBoxOutlineBlank, Download, Save } from '@mui/icons-material';
+import { ArrowBack, CheckBox, CheckBoxOutlineBlank, Download, Refresh } from '@mui/icons-material';
 import AppBarButton from '@/components/AppBar/AppBarButton';
 
 export default function ViewQuiz() {
     //const theme = useTheme();
     const [downloadingQuiz, setDownloadingQuiz] = useState(true)
     const [quiz, setQuiz] = useState(null)
+    const [waitingForGenerationStart, setWaitingForGenerationStart] = useState(false)
+    const [progressMessage, setProgressMessage] = useState("")
     let { quizUuid } = useParams();
     const navigate = useNavigate();
 
@@ -24,10 +26,25 @@ export default function ViewQuiz() {
         }
 
         fetchData().catch(console.error); // TODO: better error handling
-    }, [quizUuid]);
+    }, [quizUuid, waitingForGenerationStart]);
 
-    function startQuestionRegenerate(questionId) {
+    async function startQuestionRegenerate(questionId) {
+        setWaitingForGenerationStart(true);
+        setProgressMessage("Starten...");
+
         regenerateQuestion(quiz.id, questionId);
+
+        for (; ;) {
+            await new Promise(r => setTimeout(r, 5000));
+            const progressResponse = await getQuizProgress(quizUuid);
+            setProgressMessage(progressResponse.progress);
+
+            if (progressResponse.progress === null || progressResponse.progress === "Regeneratie voltooid") {
+                break;
+            }
+        }
+
+        setWaitingForGenerationStart(false);
     }
 
     function getAnswers(question) {
@@ -72,7 +89,7 @@ export default function ViewQuiz() {
 
     return (
         <AppShell>{{
-            appBarButtons: [
+            appBarButtons: waitingForGenerationStart ? [] : [
                 <AppBarButton onClick={() => { navigate('/') }}><ArrowBack />&nbsp;Begin opnieuw</AppBarButton>,
                 <div style={{marginLeft: 'auto'}}>
                     <AppBarButton onClick={() => { downloadBrightspaceCsv() }}><Download />&nbsp;Download .csv voor Brightspace</AppBarButton>
@@ -83,6 +100,12 @@ export default function ViewQuiz() {
                 <Box sx={{ p: 2 }}>
                     <Typography>Moment, de quiz wordt ingeladen...</Typography>
                 </Box>
+            </Box> : waitingForGenerationStart ? <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <CircularProgress />
+                <Box sx={{ p: 2 }}>
+                    <Typography>Moment, het hergenereren van de vraag is bezig...</Typography>
+                    <Typography>Status: {progressMessage}</Typography>
+                </Box>
             </Box> : 
             <>
                 <h1>Uw quiz:</h1>
@@ -90,8 +113,10 @@ export default function ViewQuiz() {
                     <ol>
                         {quiz.questions.map((question, i) =>
                             <li>
-                                {/* <Button onClick={() => startQuestionRegenerate(question.id)}>Regenerate</Button> */}
-                                {question.question_text}
+                                <div style={{'display': 'flex', 'justify-content': 'space-between'}}>
+                                    {question.question_text}
+                                    <IconButton onClick={() => startQuestionRegenerate(question.id)}><Refresh /></IconButton>
+                                </div>
                                 <ul>
                                     {getAnswers(question)}
                                 </ul>
