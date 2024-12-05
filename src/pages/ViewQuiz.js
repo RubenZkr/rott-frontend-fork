@@ -35,7 +35,7 @@ export default function ViewQuiz() {
         regenerateQuestion(quiz.id, questionId);
 
         for (; ;) {
-            await new Promise(r => setTimeout(r, 5000));
+            await new Promise(r => setTimeout(r, 2000));
             const progressResponse = await getQuizProgress(quizUuid);
             setProgressMessage(progressResponse.progress);
 

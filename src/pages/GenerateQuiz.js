@@ -42,7 +42,7 @@ export default function GenerateQuiz() {
         // TODO: add error handling
 
         for (;;) {
-            await new Promise(r => setTimeout(r, 5000));
+            await new Promise(r => setTimeout(r, 2000));
             const progressResponse = await getQuizProgress(quizUuid);
             setProgressMessage(progressResponse.progress);
             
