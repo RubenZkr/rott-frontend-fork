@@ -4,8 +4,9 @@ import "@fontsource/lato";
 import { Box, CircularProgress, IconButton, List, ListItem, ListItemIcon, ListItemText, Typography } from '@mui/material';
 import { getQuiz, regenerateQuestion, exportQuiz, getQuizProgress } from '@/api/QuizApi';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowBack, CheckBox, CheckBoxOutlineBlank, Download, Refresh, VerticalAlignBottom } from '@mui/icons-material';
+import { ArrowBack, Download, Refresh } from '@mui/icons-material';
 import AppBarButton from '@/components/AppBar/AppBarButton';
+import Answers from '@/components/answers/Answers';
 
 export default function ViewQuiz() {
     //const theme = useTheme();
@@ -47,44 +48,6 @@ export default function ViewQuiz() {
         setWaitingForGenerationStart(false);
     }
 
-    function getAnswers(question) {
-        if (question.type === 'MC') {
-            return <List dense component='ol' sx={{listStyle: 'upper-alpha', pl: '2em'}}> 
-                {question.options.map((option, i) => (
-                    <ListItem key={`mc=${i}`} disablePadding={true} sx={{display: 'list-item'}}>
-                        <div style={{display: 'flex', alignItems: 'center'}}>
-                             
-                            <ListItemIcon sx={{paddingLeft: '0.8em'}}>
-                                { option[0] === '100' ? 
-                                    <CheckBox             sx={{width: '50%'}}/> : 
-                                    <CheckBoxOutlineBlank sx={{width: '50%'}}/> }
-                            </ListItemIcon>
-                            {option[1]}
-                        </div>
-                    </ListItem>
-                ))}
-            </List>
-        } else if (question.type === 'TF') {
-            return <List dense component='ol' sx={{listStyle: 'upper-alpha', pl: '2em'}}> 
-                <ListItem disablePadding={true} sx={{display: 'list-item', paddingLeft: '0.8em'}}>
-                    {question.options.find((option) => option[1] === "100")[0] === 'TRUE' ? <b>Waar</b> : <b>Onwaar</b>}
-                </ListItem>
-            </List>
-        } else if (question.type === 'SA') {
-            return <>
-                <b>Mogelijk(e) antwoord(en):</b>
-                <List dense component='ol' sx={{listStyle: 'upper-alpha', pl: '2em'}}> 
-                    {question.options.map((option, i) => {
-                            return <ListItem key={`sa-${i}`} disablePadding={true} sx={{display: 'list-item', paddingLeft: '0.8em'}}>
-                                {option[1]}
-                            </ListItem>
-                        })
-                    }
-                </List>
-            </>
-        }
-    }
-
     async function downloadBrightspaceCsv() {
         let brightspaceCsvBlob = await exportQuiz(quizUuid);
         var fileURL = URL.createObjectURL(brightspaceCsvBlob);
@@ -124,7 +87,7 @@ export default function ViewQuiz() {
                                     {question.question_text}
                                     <IconButton onClick={() => startQuestionRegenerate(question.id)}><Refresh /></IconButton>
                                 </div>
-                                {getAnswers(question)}
+                                <Answers question={question}/>
                             </ListItem>)}
                     </List>
             </>
