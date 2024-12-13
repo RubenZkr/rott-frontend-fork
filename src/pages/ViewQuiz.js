@@ -59,12 +59,14 @@ export default function ViewQuiz() {
 
     return (
         <AppShell>{{
-            appBarButtons: waitingForGenerationStart ? [] : [
-                <AppBarButton onClick={() => { navigate('/') }}><ArrowBack />&nbsp;Begin opnieuw</AppBarButton>,
-                <div style={{marginLeft: 'auto'}}>
-                    <AppBarButton onClick={() => { downloadBrightspaceCsv() }}><Download />&nbsp;Download .csv voor Brightspace</AppBarButton>
-                </div>
-            ],
+            appBarButtons: waitingForGenerationStart ? null : (
+                <>
+                    <AppBarButton onClick={() => {navigate('/');}}><ArrowBack/>&nbsp;Begin opnieuw</AppBarButton>
+                    <div style={{marginLeft: 'auto'}}>
+                        <AppBarButton onClick={() => { downloadBrightspaceCsv();}}><Download />&nbsp;Download .csv voor Brightspace</AppBarButton>
+                    </div>
+                </>
+            ),
             body: downloadingQuiz || !quiz ? <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <CircularProgress />
                 <Box sx={{ p: 2 }}>
