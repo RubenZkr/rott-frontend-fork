@@ -59,7 +59,7 @@ export default function ViewQuiz() {
 
     return (
         <AppShell>{{
-            appBarButtons: waitingForGenerationStart ? null : (
+            appBarButtons: !waitingForGenerationStart && (
                 <>
                     <AppBarButton onClick={() => {navigate('/');}}><ArrowBack/>&nbsp;Begin opnieuw</AppBarButton>
                     <div style={{marginLeft: 'auto'}}>

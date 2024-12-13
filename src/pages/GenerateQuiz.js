@@ -57,9 +57,8 @@ export default function GenerateQuiz() {
 
     return (
         <AppShell>{{
-            appBarButtons: [
+            appBarButtons: 
                 !waitingForGenerationStart && <AppBarButton onClick={resetState}><Refresh />&nbsp;Begin opnieuw</AppBarButton>,
-            ],
             body: waitingForGenerationStart ? <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <CircularProgress />
                 <Box sx={{ p: 2 }}>
