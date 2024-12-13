@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import AppShell from '@/components/AppShell';
 import "@fontsource/lato";
-import { Box, CircularProgress, IconButton, Typography } from '@mui/material';
+import { Box, CircularProgress, IconButton, List, ListItem, ListItemIcon, ListItemText, Typography } from '@mui/material';
 import { getQuiz, regenerateQuestion, exportQuiz, getQuizProgress } from '@/api/QuizApi';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowBack, CheckBox, CheckBoxOutlineBlank, Download, Refresh } from '@mui/icons-material';
+import { ArrowBack, CheckBox, CheckBoxOutlineBlank, Download, Refresh, VerticalAlignBottom } from '@mui/icons-material';
 import AppBarButton from '@/components/AppBar/AppBarButton';
 
 export default function ViewQuiz() {
@@ -49,32 +49,39 @@ export default function ViewQuiz() {
 
     function getAnswers(question) {
         if (question.type === 'MC') {
-            return <ol>
-                {
-                    question.options.map((option) => {
-                        return <li>
-                            {option[0] === '100' ? <CheckBox/> : <CheckBoxOutlineBlank/>}
+            return <List dense component='ol' sx={{listStyle: 'upper-alpha', pl: '2em'}}> 
+                {question.options.map((option, i) => (
+                    <ListItem key={`mc=${i}`} disablePadding={true} sx={{display: 'list-item'}}>
+                        <div style={{display: 'flex', alignItems: 'center'}}>
+                             
+                            <ListItemIcon sx={{paddingLeft: '0.8em'}}>
+                                { option[0] === '100' ? 
+                                    <CheckBox             sx={{width: '50%'}}/> : 
+                                    <CheckBoxOutlineBlank sx={{width: '50%'}}/> }
+                            </ListItemIcon>
                             {option[1]}
-                        </li>
-                    })
-                }
-            </ol>
+                        </div>
+                    </ListItem>
+                ))}
+            </List>
         } else if (question.type === 'TF') {
-            return <ol>
-                {
-                    question.options.find((option) => option[1] === "100")[0] === 'TRUE' ? <b>Waar</b> : <b>Onwaar</b>
-                }
-            </ol>
+            return <List dense component='ol' sx={{listStyle: 'upper-alpha', pl: '2em'}}> 
+                <ListItem disablePadding={true} sx={{display: 'list-item', paddingLeft: '0.8em'}}>
+                    {question.options.find((option) => option[1] === "100")[0] === 'TRUE' ? <b>Waar</b> : <b>Onwaar</b>}
+                </ListItem>
+            </List>
         } else if (question.type === 'SA') {
-            return <><b>Mogelijk(e) antwoord(en):</b><ol>
-                {
-                    question.options.map((option) => {
-                        return <li>
-                            {option[1]}
-                        </li>
-                    })
-                }
-            </ol></>
+            return <>
+                <b>Mogelijk(e) antwoord(en):</b>
+                <List dense component='ol' sx={{listStyle: 'upper-alpha', pl: '2em'}}> 
+                    {question.options.map((option, i) => {
+                            return <ListItem key={`sa-${i}`} disablePadding={true} sx={{display: 'list-item', paddingLeft: '0.8em'}}>
+                                {option[1]}
+                            </ListItem>
+                        })
+                    }
+                </List>
+            </>
         }
     }
 
@@ -110,19 +117,16 @@ export default function ViewQuiz() {
             <>
                 <h1>Uw quiz:</h1>
                 <h2>Onderwerp: {quiz.title}</h2>
-                    <ol>
+                    <List dense component='ol' sx={{listStyle: 'decimal', pl: '2em'}}> 
                         {quiz.questions.map((question, i) =>
-                            <li>
-                                <div style={{'display': 'flex', 'justify-content': 'space-between'}}>
+                            <ListItem key={`question-${i}`} sx={{display: 'list-item'}}>
+                                <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
                                     {question.question_text}
                                     <IconButton onClick={() => startQuestionRegenerate(question.id)}><Refresh /></IconButton>
                                 </div>
-                                <ul>
-                                    {getAnswers(question)}
-                                </ul>
-                            </li>)}
-                    </ol>
-                
+                                {getAnswers(question)}
+                            </ListItem>)}
+                    </List>
             </>
         }}</AppShell>
     )

@@ -83,7 +83,7 @@ export default function GenerateQuiz() {
                 <p>Minimaal 1 document is vereist. U kunt Word-, PowerPoint- en PDF-bestanden toevoegen (.docx, .pptx en .pdf).</p>
                 <ul>
                     {teachingMaterials.map((object, i) =>
-                    <li>
+                    <li key={`material-${i}`}>
                         <IconButton onClick={() => deleteTeachingMaterial(object)}><Delete htmlColor={theme.palette.error.main} /></IconButton>
                         &nbsp;{object.name}
                     </li>)}
