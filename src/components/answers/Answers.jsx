@@ -1,22 +1,23 @@
 import { List } from "@mui/material"
-import MultipleChoiceAnswers from "./MultipleChoiceAnswers"
-import ShortAnswerAnswer from "./ShortAnswerAnswer"
+import MultipleChoiceOption from "./MultipleChoiceOption"
+import ShortAnswerOption from "./ShortAnswerOption"
 import TrueFalseAnswer from "./TrueFalseAnswer"
 
-export default function Answers({question}) {
+export default function Answers({to: question}) {
 
     const listItems = () => {
         if (question.type === 'MC') {
             return question.options.map((option, i) => (
-                <MultipleChoiceAnswers key={`mc-${i}`} option={option} />
+                <MultipleChoiceOption key={`mc-${i}`} option={option} />
             ));
         } else if (question.type === 'TF') {
-            return question.options.map((option) => (
-                <TrueFalseAnswer key={`tf-${option}`} option={option} />
-            ));
+            const answer = question.options.find(option => (option[1] === '100'));
+            return (
+                <TrueFalseAnswer answer={answer[0]} />
+            );
         } else if (question.type === 'SA') {
             return question.options.map((option, i) => (
-                <ShortAnswerAnswer key={`sa-${i}`} option={option} />
+                <ShortAnswerOption key={`sa-${i}`} option={option} />
             ));
         }
     }

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import AppShell from '@/components/AppShell';
 import "@fontsource/lato";
-import { Box, CircularProgress, IconButton, List, ListItem, ListItemIcon, ListItemText, Typography } from '@mui/material';
+import { Box, CircularProgress, IconButton, List, ListItem, Typography } from '@mui/material';
 import { getQuiz, regenerateQuestion, exportQuiz, getQuizProgress } from '@/api/QuizApi';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowBack, Download, Refresh } from '@mui/icons-material';
@@ -89,7 +89,7 @@ export default function ViewQuiz() {
                                     {question.question_text}
                                     <IconButton onClick={() => startQuestionRegenerate(question.id)}><Refresh /></IconButton>
                                 </div>
-                                <Answers question={question}/>
+                                <Answers to={question}/>
                             </ListItem>)}
                     </List>
             </>
