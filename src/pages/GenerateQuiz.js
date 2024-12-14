@@ -77,7 +77,7 @@ export default function GenerateQuiz() {
                     <TextField id="outlined-basic" label="Onderwerpen" helperText="Bijvoorbeeld: SQL, Data warehouse" variant="outlined" required
                         value={subject}
                         onChange={(e) => setSubject(e.target.value)} 
-                        inputProps={{ minLength: 3, maxLength: 30 }}
+                        slotProps={{ htmlInput: {minLength: 3, maxLength: 30 }}}
                     />
 
                     <br /><br />
@@ -116,8 +116,8 @@ export default function GenerateQuiz() {
                         value={questionCount.toString()}
                         slotProps={{
                             htmlInput: { min: 5, max: 30 },
+                            minLength: { minLength: 5, maxLength: 30}
                         }}
-                        inputProps={{ minLength: 3, maxLength: 30 }}
                         onChange={(e) => setQuestionCount(e.target.value)}
                     />
 
