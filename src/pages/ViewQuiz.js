@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import AppShell from '@/components/AppShell';
 import "@fontsource/lato";
-import { Box, CircularProgress, IconButton, Typography } from '@mui/material';
+import { Box, CircularProgress, IconButton, List, ListItem, Typography } from '@mui/material';
 import { getQuiz, regenerateQuestion, exportQuiz, getQuizProgress } from '@/api/QuizApi';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowBack, CheckBox, CheckBoxOutlineBlank, Download, Refresh } from '@mui/icons-material';
+import { ArrowBack, Download, Refresh } from '@mui/icons-material';
 import AppBarButton from '@/components/AppBar/AppBarButton';
+import Answers from '@/components/answers/Answers';
 
 export default function ViewQuiz() {
     //const theme = useTheme();
@@ -47,37 +48,6 @@ export default function ViewQuiz() {
         setWaitingForGenerationStart(false);
     }
 
-    function getAnswers(question) {
-        if (question.type === 'MC') {
-            return <ol>
-                {
-                    question.options.map((option) => {
-                        return <li>
-                            {option[0] === '100' ? <CheckBox/> : <CheckBoxOutlineBlank/>}
-                            {option[1]}
-                        </li>
-                    })
-                }
-            </ol>
-        } else if (question.type === 'TF') {
-            return <ol>
-                {
-                    question.options.find((option) => option[1] === "100")[0] === 'TRUE' ? <b>Waar</b> : <b>Onwaar</b>
-                }
-            </ol>
-        } else if (question.type === 'SA') {
-            return <><b>Mogelijk(e) antwoord(en):</b><ol>
-                {
-                    question.options.map((option) => {
-                        return <li>
-                            {option[1]}
-                        </li>
-                    })
-                }
-            </ol></>
-        }
-    }
-
     async function downloadBrightspaceCsv() {
         let brightspaceCsvBlob = await exportQuiz(quizUuid);
         var fileURL = URL.createObjectURL(brightspaceCsvBlob);
@@ -89,12 +59,14 @@ export default function ViewQuiz() {
 
     return (
         <AppShell>{{
-            appBarButtons: waitingForGenerationStart ? [] : [
-                <AppBarButton onClick={() => { navigate('/') }}><ArrowBack />&nbsp;Begin opnieuw</AppBarButton>,
-                <div style={{marginLeft: 'auto'}}>
-                    <AppBarButton onClick={() => { downloadBrightspaceCsv() }}><Download />&nbsp;Download .csv voor Brightspace</AppBarButton>
-                </div>
-            ],
+            appBarButtons: !waitingForGenerationStart && (
+                <>
+                    <AppBarButton onClick={() => {navigate('/');}}><ArrowBack/>&nbsp;Begin opnieuw</AppBarButton>
+                    <div style={{marginLeft: 'auto'}}>
+                        <AppBarButton onClick={() => { downloadBrightspaceCsv();}}><Download />&nbsp;Download .csv voor Brightspace</AppBarButton>
+                    </div>
+                </>
+            ),
             body: downloadingQuiz || !quiz ? <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <CircularProgress />
                 <Box sx={{ p: 2 }}>
@@ -110,19 +82,16 @@ export default function ViewQuiz() {
             <>
                 <h1>Uw quiz:</h1>
                 <h2>Onderwerp: {quiz.title}</h2>
-                    <ol>
+                    <List dense component='ol' sx={{listStyle: 'decimal', pl: '2em'}}> 
                         {quiz.questions.map((question, i) =>
-                            <li>
-                                <div style={{'display': 'flex', 'justify-content': 'space-between'}}>
+                            <ListItem key={`question-${i}`} sx={{display: 'list-item'}}>
+                                <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
                                     {question.question_text}
                                     <IconButton onClick={() => startQuestionRegenerate(question.id)}><Refresh /></IconButton>
                                 </div>
-                                <ul>
-                                    {getAnswers(question)}
-                                </ul>
-                            </li>)}
-                    </ol>
-                
+                                <Answers to={question}/>
+                            </ListItem>)}
+                    </List>
             </>
         }}</AppShell>
     )

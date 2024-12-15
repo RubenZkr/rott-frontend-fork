@@ -27,7 +27,8 @@ export default function GenerateQuiz() {
         setTeachingMaterials(teachingMaterials.filter((listTeachingMaterial) => listTeachingMaterial !== teachingMaterial));
     }
 
-    async function startQuizGeneration() {
+    async function startQuizGeneration(ev) {
+        ev.preventDefault();
         setProgressMessage("Starten...");
         const formData = new FormData();
         formData.append('subject', subject);
@@ -57,9 +58,8 @@ export default function GenerateQuiz() {
 
     return (
         <AppShell>{{
-            appBarButtons: [
+            appBarButtons: 
                 !waitingForGenerationStart && <AppBarButton onClick={resetState}><Refresh />&nbsp;Begin opnieuw</AppBarButton>,
-            ],
             body: waitingForGenerationStart ? <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <CircularProgress />
                 <Box sx={{ p: 2 }}>
@@ -71,57 +71,64 @@ export default function GenerateQuiz() {
                 <h2>Nieuwe quiz</h2>
                 <p>Genereer in stappen een quiz.</p>
                 
-                <h3>Stap 1. Een of meerdere onderwerpen (kommagescheiden):</h3>
-                <TextField id="outlined-basic" label="Onderwerpen" helperText="Bijvoorbeeld: SQL, Data warehouse" variant="outlined"
-                    value={subject}
-                    onChange={(e) => setSubject(e.target.value)} />
-
-                <br /><br />
-
-                <h3>Stap 2. Voeg lesmateriaal toe:</h3>
-                <p>Hier voegt u bestanden toe als bronmateriaal voor de vragen.</p>
-                <p>Minimaal 1 document is vereist. U kunt Word-, PowerPoint- en PDF-bestanden toevoegen (.docx, .pptx en .pdf).</p>
-                <ul>
-                    {teachingMaterials.map((object, i) =>
-                    <li>
-                        <IconButton onClick={() => deleteTeachingMaterial(object)}><Delete htmlColor={theme.palette.error.main} /></IconButton>
-                        &nbsp;{object.name}
-                    </li>)}
-                </ul>
-                <Button component="label" role={undefined} variant="contained" tabIndex={-1} startIcon={<Add />}>
-                    Voeg {teachingMaterials.length > 0 ? 'meer ' : ''}bestanden toe
-                    <VisuallyHiddenInput
-                        type="file"
-                        onChange={(event) => {setTeachingMaterials([
-                            ...teachingMaterials,
-                            ...event.target.files,
-                        ])}}
-                        multiple
+                <form onSubmit={startQuizGeneration}>
+                    <h3>Stap 1. Een of meerdere onderwerpen (kommagescheiden):</h3>
+                    <p>Dit is het onderwerp van uw quiz.</p>
+                    <TextField id="outlined-basic" label="Onderwerpen" helperText="Bijvoorbeeld: SQL, Data warehouse" variant="outlined" required
+                        value={subject}
+                        onChange={(e) => setSubject(e.target.value)} 
+                        slotProps={{ htmlInput: {minLength: 3, maxLength: 30 }}}
                     />
-                </Button>
 
-                <br /><br />
+                    <br /><br />
 
-                <h3>Stap 3. Aantal vragen:</h3>
-                <p>Hier voert u een totaal aantal vragen in. De mix van vraagsoorten wordt op dit moment automatisch bepaald.</p>
-                <TextField
-                    id="outlined-number"
-                    label="Aantal vragen"
-                    type="number"
-                    value={questionCount.toString()}
-                    slotProps={{
-                        htmlInput: { min: 5, max: 30 },
-                    }}
-                    onChange={(e) => setQuestionCount(e.target.value)}
-                />
+                    <h3>Stap 2. Voeg lesmateriaal toe:</h3>
+                    <p>Hier voegt u bestanden toe als bronmateriaal voor de vragen.</p>
+                    <p>Minimaal 1 document is vereist. U kunt Word-, PowerPoint- en PDF-bestanden toevoegen (.docx, .pptx en .pdf).</p>
+                    <ul>
+                        {teachingMaterials.map((object, i) =>
+                        <li key={`material-${i}`}>
+                            <IconButton onClick={() => deleteTeachingMaterial(object)}><Delete htmlColor={theme.palette.error.main} /></IconButton>
+                            &nbsp;{object.name}
+                        </li>)}
+                    </ul>
+                    <Button component="label" variant="contained" tabIndex={-1} startIcon={<Add />}>
+                        Voeg {teachingMaterials.length > 0 ? 'meer ' : ''}bestanden toe
+                        <VisuallyHiddenInput
+                            type="file"
+                            onChange={(event) => {setTeachingMaterials([
+                                ...teachingMaterials,
+                                ...event.target.files,
+                            ])}}
+                            multiple
+                            required
+                        />
+                    </Button>
 
-                <br /><br />
+                    <br /><br />
 
-                <h3>Stap 4. Genereer quiz:</h3>
-                <p>Let op dat het genereren enige tijd kan duren. Na het genereren kunt u de quiz bewerken en/of exporteren voor Brightspace.</p>
-                <Button component="label" role={undefined} variant="contained" tabIndex={-1} startIcon={<AutoAwesome />} onClick={startQuizGeneration}>
-                    Genereer quiz
-                </Button>
+                    <h3>Stap 3. Aantal vragen:</h3>
+                    <p>Hier voert u een totaal aantal vragen in. De mix van vraagsoorten wordt op dit moment automatisch bepaald.</p>
+                    <TextField required
+                        id="outlined-number"
+                        label="Aantal vragen"
+                        type="number"
+                        value={questionCount.toString()}
+                        slotProps={{
+                            htmlInput: { min: 5, max: 30 },
+                            minLength: { minLength: 5, maxLength: 30}
+                        }}
+                        onChange={(e) => setQuestionCount(e.target.value)}
+                    />
+
+                    <br /><br />
+
+                    <h3>Stap 4. Genereer quiz:</h3>
+                    <p>Let op dat het genereren enige tijd kan duren. Na het genereren kunt u de quiz bewerken en/of exporteren voor Brightspace.</p>
+                    <Button type="submit" variant="contained" startIcon={<AutoAwesome />}>
+                        Genereer quiz
+                    </Button>
+                </form>
             </>
         }}</AppShell>
     )
