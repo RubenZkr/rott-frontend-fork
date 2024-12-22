@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import AppBarButton from '@/components/AppBar/AppBarButton';
 import AppShell from '@/components/AppShell';
 import "@fontsource/lato";
-import { Box, Button, CircularProgress, IconButton, TextField, Typography } from '@mui/material';
+import { Box, Button, CircularProgress, IconButton, TextField, Typography, Stack } from '@mui/material';
 import { Add, AutoAwesome, Delete, Refresh } from '@mui/icons-material';
 import { styled, useTheme } from '@mui/material/styles';
 import { generateQuiz, getQuizProgress } from '@/api/QuizApi';
@@ -11,7 +11,9 @@ import { useNavigate } from "react-router-dom";
 export default function GenerateQuiz() {
     const [subject, setSubject] = useState('');
     const [teachingMaterials, setTeachingMaterials] = useState([]);
-    const [questionCount, setQuestionCount] = useState(5);
+    const [multiple_choice_count, setMultipleChoiceCount] = useState(5);
+    const [true_false_count, setTrueFalseCount] = useState(5);
+    const [short_answer_count, setShortAnswerCount] = useState(5);
     const theme = useTheme();
     const [waitingForGenerationStart, setWaitingForGenerationStart] = useState(false)
     const [progressMessage, setProgressMessage] = useState("")
@@ -20,7 +22,9 @@ export default function GenerateQuiz() {
     function resetState() {
         setSubject('');
         setTeachingMaterials([]);
-        setQuestionCount(5);
+        setMultipleChoiceCount(5);
+        setTrueFalseCount(5);
+        setShortAnswerCount(5);
     }
 
     function deleteTeachingMaterial(teachingMaterial) {
@@ -32,7 +36,9 @@ export default function GenerateQuiz() {
         setProgressMessage("Starten...");
         const formData = new FormData();
         formData.append('subject', subject);
-        formData.append('number', questionCount);
+        formData.append('multiple_choice_count', multiple_choice_count);
+        formData.append('true_false_count', true_false_count);
+        formData.append('short_answer_count', short_answer_count);
         for (let key in teachingMaterials) {
             formData.append(`files`, teachingMaterials[key]);
         }
@@ -73,8 +79,14 @@ export default function GenerateQuiz() {
                 
                 <form onSubmit={startQuizGeneration}>
                     <h3>Stap 1. Een of meerdere onderwerpen (kommagescheiden):</h3>
-                    <p>Dit is het onderwerp van uw quiz.</p>
-                    <TextField id="outlined-basic" label="Onderwerpen" helperText="Bijvoorbeeld: SQL, Data warehouse" variant="outlined" required
+                    <p>Vul hier het onderwerp in van uw quiz.</p>
+                    <TextField
+                        id="outlined-basic"
+                        label="Onderwerpen"
+                        helperText="Bijvoorbeeld: SQL, Data warehouse"
+                        variant="outlined"
+                        required
+                        sx={{ width: '270px' }}
                         value={subject}
                         onChange={(e) => setSubject(e.target.value)} 
                         slotProps={{ htmlInput: {minLength: 3, maxLength: 30 }}}
@@ -108,19 +120,39 @@ export default function GenerateQuiz() {
                     <br /><br />
 
                     <h3>Stap 3. Aantal vragen:</h3>
-                    <p>Hier voert u een totaal aantal vragen in. De mix van vraagsoorten wordt op dit moment automatisch bepaald.</p>
-                    <TextField required
-                        id="outlined-number"
-                        label="Aantal vragen"
-                        type="number"
-                        value={questionCount.toString()}
-                        slotProps={{
-                            htmlInput: { min: 5, max: 30 },
-                            minLength: { minLength: 5, maxLength: 30}
-                        }}
-                        onChange={(e) => setQuestionCount(e.target.value)}
-                    />
-
+                    <p>Voer per soort vraag het aantal vragen in dat u wilt genereren.</p>
+                    <Stack direction="row" spacing={2}>
+                        <TextField
+                            required
+                            id="outlined-number"
+                            label="Meerkeuze vragen"
+                            type="number"
+                            sx={{ width: '270px' }}
+                            value={multiple_choice_count.toString()}
+                            slotProps={{ min: 5, max: 30 }}
+                            onChange={(e) => setMultipleChoiceCount(e.target.value)}
+                        />
+                        <TextField
+                            required
+                            id="outlined-number"
+                            label="Waar/onwaar vragen"
+                            type="number"
+                            sx={{ width: '270px' }}
+                            value={true_false_count.toString()}
+                            slotProps={{ min: 5, max: 30 }}
+                            onChange={(e) => setTrueFalseCount(e.target.value)}
+                        />
+                        <TextField
+                            required
+                            id="outlined-number"
+                            label="Open vragen"
+                            type="number"
+                            sx={{ width: '270px' }}
+                            value={short_answer_count.toString()}
+                            slotProps={{ min: 5, max: 30 }}
+                            onChange={(e) => setShortAnswerCount(e.target.value)}
+                        />
+                    </Stack>
                     <br /><br />
 
                     <h3>Stap 4. Genereer quiz:</h3>
