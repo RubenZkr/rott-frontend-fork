@@ -15,8 +15,8 @@ export default function GenerateQuiz() {
     const [true_false_count, setTrueFalseCount] = useState(5);
     const [short_answer_count, setShortAnswerCount] = useState(5);
     const theme = useTheme();
-    const [waitingForGenerationStart, setWaitingForGenerationStart] = useState(false)
-    const [progressMessage, setProgressMessage] = useState("")
+    const [waitingForGenerationStart, setWaitingForGenerationStart] = useState(false);
+    const [progressMessage, setProgressMessage] = useState("");
     const navigate = useNavigate();
 
     function resetState() {
@@ -129,7 +129,10 @@ export default function GenerateQuiz() {
                             type="number"
                             sx={{ width: '270px' }}
                             value={multiple_choice_count.toString()}
-                            slotProps={{ min: 5, max: 30 }}
+                            slotProps={{
+                                htmlInput: { min: 2, max: 30 },
+                                minLength: { minLength: 2, maxLength: 30 }
+                            }}
                             onChange={(e) => setMultipleChoiceCount(e.target.value)}
                         />
                         <TextField
@@ -139,7 +142,10 @@ export default function GenerateQuiz() {
                             type="number"
                             sx={{ width: '270px' }}
                             value={true_false_count.toString()}
-                            slotProps={{ min: 5, max: 30 }}
+                            slotProps={{
+                                htmlInput: { min: 2, max: 30 },
+                                minLength: { minLength: 2, maxLength: 30 }
+                            }}
                             onChange={(e) => setTrueFalseCount(e.target.value)}
                         />
                         <TextField
@@ -149,7 +155,10 @@ export default function GenerateQuiz() {
                             type="number"
                             sx={{ width: '270px' }}
                             value={short_answer_count.toString()}
-                            slotProps={{ min: 5, max: 30 }}
+                            slotProps={{
+                                htmlInput: { min: 2, max: 30 },
+                                minLength: { minLength: 2, maxLength: 30 }
+                            }}
                             onChange={(e) => setShortAnswerCount(e.target.value)}
                         />
                     </Stack>
