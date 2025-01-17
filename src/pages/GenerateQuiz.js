@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import AppBarButton from '@/components/AppBar/AppBarButton';
 import AppShell from '@/components/AppShell';
 import "@fontsource/lato";
-import { Box, Button, CircularProgress, IconButton, TextField, Typography, Stack } from '@mui/material';
+import { Button, IconButton, TextField, Stack } from '@mui/material';
 import { Add, AutoAwesome, Delete, Refresh } from '@mui/icons-material';
 import { styled, useTheme } from '@mui/material/styles';
-import { generateQuiz, getQuizProgress } from '@/api/QuizApi';
+import { generateQuiz } from '@/api/QuizApi';
 import { useNavigate } from "react-router-dom";
 
 export default function GenerateQuiz() {
@@ -15,8 +15,6 @@ export default function GenerateQuiz() {
     const [true_false_count, setTrueFalseCount] = useState(5);
     const [short_answer_count, setShortAnswerCount] = useState(5);
     const theme = useTheme();
-    const [waitingForGenerationStart, setWaitingForGenerationStart] = useState(false);
-    const [progressMessage, setProgressMessage] = useState("");
     const navigate = useNavigate();
 
     function resetState() {
@@ -33,7 +31,6 @@ export default function GenerateQuiz() {
 
     async function startQuizGeneration(ev) {
         ev.preventDefault();
-        setProgressMessage("Starten...");
         const formData = new FormData();
         formData.append('subject', subject);
         formData.append('multiple_choice_count', multiple_choice_count);
@@ -43,36 +40,17 @@ export default function GenerateQuiz() {
             formData.append(`files`, teachingMaterials[key]);
         }
 
-        setWaitingForGenerationStart(true);
         const generateResponse = await generateQuiz(formData);
         const quizUuid = generateResponse.quiz_uuid;
-        // TODO: add error handling
-
-        for (;;) {
-            await new Promise(r => setTimeout(r, 2000));
-            const progressResponse = await getQuizProgress(quizUuid);
-            setProgressMessage(progressResponse.progress);
-            
-            if (progressResponse.progress === null || progressResponse.progress === "Quiz generatie voltooid") {
-                break;
-            }
-        }
-
-        // Generation is done, forward user to result page.
+        // Redirect user to result page after generation
         navigate(`/quiz/${quizUuid}`);
     }
 
     return (
         <AppShell>{{
             appBarButtons: 
-                !waitingForGenerationStart && <AppBarButton onClick={resetState}><Refresh />&nbsp;Begin opnieuw</AppBarButton>,
-            body: waitingForGenerationStart ? <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <CircularProgress />
-                <Box sx={{ p: 2 }}>
-                    <Typography>Moment, het genereren is bezig...</Typography>
-                    <Typography>Status: {progressMessage}</Typography>
-                </Box>
-            </Box> : 
+                <AppBarButton onClick={resetState}><Refresh />&nbsp;Begin opnieuw</AppBarButton>,
+            body: 
             <>
                 <h2>Nieuwe quiz</h2>
                 <p>Genereer in stappen een quiz.</p>
