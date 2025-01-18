@@ -3,6 +3,8 @@ import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Divider from '@mui/material/Divider';
 import { Box } from '@mui/material';
+import AppBarButton from './AppBar/AppBarButton';
+import { HelpCenter } from '@mui/icons-material';
 
 export default function AppShell({ children: {appBarButtons, body} }) {
     return (
@@ -19,6 +21,11 @@ export default function AppShell({ children: {appBarButtons, body} }) {
                 <Container>
                     <Toolbar disableGutters={true}>
                         { appBarButtons }
+                        <div style={{ marginLeft: 'auto' }}>
+                            <AppBarButton onClick={() => window.open("/H-AI-Gebruikershandleiding.pdf", '_blank').focus()}>
+                                <HelpCenter />&nbsp;Handleiding
+                            </AppBarButton>
+                        </div>
                     </Toolbar>
                 </Container>
             </AppBar>
