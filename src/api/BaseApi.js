@@ -22,3 +22,30 @@ export const fetchApi = async (endpoint, method = 'GET', body = null) => {
 
     return response.json();
 };
+
+export const getBlob = async (endpoint) => {
+    const options = {method: 'GET'};
+
+    const response = await fetch(`${apiUrl}${endpoint}`, options);
+
+    if (!response.ok) {
+        throw new Error(`Error: ${response.status} - ${response.statusText}`);
+    }
+
+    return response.blob();
+};
+
+export const postFormData = async (endpoint, formData = null) => {
+    const options = {
+        method: 'POST',
+        body: formData
+    };
+
+    const response = await fetch(`${apiUrl}${endpoint}`, options);
+
+    if (!response.ok) {
+        throw new Error(`Error: ${response.status} - ${response.statusText}`);
+    }
+
+    return response.json();
+};

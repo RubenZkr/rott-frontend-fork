@@ -5,7 +5,7 @@ part-time HBO-ICT program. A prerequisite for running this project is to have th
 
 ## Contributors
 
-- Ahmed Benjahar (21024154)
+- Ahmed Benhajar (21024154)
 - Edwin Ross (19137052)
 - Jennifer Goudswaard (21155496)
 - Marjo Salo (21146942)
@@ -46,9 +46,13 @@ The project is built with React, and the project structure is as follows:
 
 ```bash
 rott-frontend/
+├── node_modules/                 # Installed npm packages
+├── public/                       # Public files (static assets)
 ├── src/                          # Source files for the React application
 │   ├── api/                      # API call functions and configurations
 │   ├── components/               # Reusable React components
+│   │   ├── answers/              # Components related to answer functionality
+│   │   └── AppBar/               # Components for the AppBar (navigation bar)
 │   ├── configs/                  # Configuration files
 │   ├── App.css                   # Global styles for the application
 │   ├── App.js                    # Main application component
