@@ -4,7 +4,7 @@ import "@fontsource/lato";
 import { Box, CircularProgress, IconButton, List, ListItem, Typography } from '@mui/material';
 import { getQuiz, regenerateQuestion, exportQuiz, getQuizProgress } from '@/api/QuizApi';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowBack, Download, Refresh } from '@mui/icons-material';
+import { ArrowBack, Download, Refresh, Quiz } from '@mui/icons-material';
 import AppBarButton from '@/components/AppBar/AppBarButton';
 import Answers from '@/components/answers/Answers';
 
@@ -70,6 +70,9 @@ export default function ViewQuiz() {
                 <>
                     <AppBarButton onClick={() => navigate('/')}>
                         <ArrowBack />&nbsp;Begin opnieuw
+                    </AppBarButton>
+                    <AppBarButton onClick={() => navigate(`/take-quiz/${quizUuid}`)}>
+                        <Quiz />&nbsp;Neem de quiz
                     </AppBarButton>
                     <div style={{ marginLeft: 'auto' }}>
                         <AppBarButton onClick={downloadBrightspaceCsv}>

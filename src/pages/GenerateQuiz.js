@@ -12,8 +12,6 @@ export default function GenerateQuiz() {
     const [subject, setSubject] = useState('');
     const [teachingMaterials, setTeachingMaterials] = useState([]);
     const [multiple_choice_count, setMultipleChoiceCount] = useState(5);
-    const [true_false_count, setTrueFalseCount] = useState(5);
-    const [short_answer_count, setShortAnswerCount] = useState(5);
     const theme = useTheme();
     const navigate = useNavigate();
 
@@ -21,8 +19,6 @@ export default function GenerateQuiz() {
         setSubject('');
         setTeachingMaterials([]);
         setMultipleChoiceCount(5);
-        setTrueFalseCount(5);
-        setShortAnswerCount(5);
     }
 
     function deleteTeachingMaterial(teachingMaterial) {
@@ -34,8 +30,6 @@ export default function GenerateQuiz() {
         const formData = new FormData();
         formData.append('subject', subject);
         formData.append('multiple_choice_count', multiple_choice_count);
-        formData.append('true_false_count', true_false_count);
-        formData.append('short_answer_count', short_answer_count);
         for (let key in teachingMaterials) {
             formData.append(`files`, teachingMaterials[key]);
         }
@@ -98,7 +92,7 @@ export default function GenerateQuiz() {
                     <br /><br />
 
                     <h3>Stap 3. Aantal vragen:</h3>
-                    <p>Voer per soort vraag het aantal vragen in dat u wilt genereren.</p>
+                    <p>Voer het aantal meerkeuze vragen in dat u wilt genereren.</p>
                     <Stack direction="row" spacing={2}>
                         <TextField
                             required
@@ -108,36 +102,9 @@ export default function GenerateQuiz() {
                             sx={{ width: '270px' }}
                             value={multiple_choice_count.toString()}
                             slotProps={{
-                                htmlInput: { min: 2, max: 30 },
-                                minLength: { minLength: 2, maxLength: 30 }
+                                htmlInput: { min: 1, max: 30 }
                             }}
                             onChange={(e) => setMultipleChoiceCount(e.target.value)}
-                        />
-                        <TextField
-                            required
-                            id="outlined-number"
-                            label="Waar/onwaar vragen"
-                            type="number"
-                            sx={{ width: '270px' }}
-                            value={true_false_count.toString()}
-                            slotProps={{
-                                htmlInput: { min: 2, max: 30 },
-                                minLength: { minLength: 2, maxLength: 30 }
-                            }}
-                            onChange={(e) => setTrueFalseCount(e.target.value)}
-                        />
-                        <TextField
-                            required
-                            id="outlined-number"
-                            label="Open vragen"
-                            type="number"
-                            sx={{ width: '270px' }}
-                            value={short_answer_count.toString()}
-                            slotProps={{
-                                htmlInput: { min: 2, max: 30 },
-                                minLength: { minLength: 2, maxLength: 30 }
-                            }}
-                            onChange={(e) => setShortAnswerCount(e.target.value)}
                         />
                     </Stack>
                     <br /><br />

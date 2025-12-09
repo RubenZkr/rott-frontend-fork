@@ -5,6 +5,8 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { createTheme, CssBaseline, ThemeProvider } from '@mui/material';
 import GenerateQuiz from '@/pages/GenerateQuiz';
 import ViewQuiz from '@/pages/ViewQuiz';
+import TakeQuiz from '@/pages/TakeQuiz';
+import QuizResults from '@/pages/QuizResults';
 
 const theme = createTheme({
   typography: {
@@ -32,6 +34,14 @@ const router = createBrowserRouter([
   {
     path: "/quiz/:quizUuid",
     element: <ViewQuiz />,
+  },
+  {
+    path: "/take-quiz/:quizUuid",
+    element: <TakeQuiz />,
+  },
+  {
+    path: "/quiz-results/:quizUuid",
+    element: <QuizResults />,
   },
 ]);
 
