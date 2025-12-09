@@ -5,6 +5,16 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { createTheme, CssBaseline, ThemeProvider } from '@mui/material';
 import GenerateQuiz from '@/pages/GenerateQuiz';
 import ViewQuiz from '@/pages/ViewQuiz';
+import Login from '@/pages/Login';
+import Dashboard from '@/pages/Dashboard';
+import ProtectedRoute from '@/components/ProtectedRoute';
+
+// Suppress benign ResizeObserver warning in development
+const resizeObserverErr = window.onerror;
+window.onerror = (message, ...args) => {
+  if (message?.includes?.('ResizeObserver loop')) return true;
+  return resizeObserverErr?.(message, ...args);
+};
 
 const theme = createTheme({
   typography: {
@@ -32,6 +42,14 @@ const router = createBrowserRouter([
   {
     path: "/quiz/:quizUuid",
     element: <ViewQuiz />,
+  },
+  {
+    path: "/login",
+    element: <Login />,
+  },
+  {
+    path: "/dashboard",
+    element: <ProtectedRoute><Dashboard /></ProtectedRoute>,
   },
 ]);
 
