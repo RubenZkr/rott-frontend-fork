@@ -1,8 +1,8 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import AppShell from '@/components/AppShell';
 import "@fontsource/lato";
 import { Box, CircularProgress, IconButton, List, ListItem, Typography } from '@mui/material';
-import { getQuiz, regenerateQuestion, exportQuiz, getQuizProgress } from '@/api/QuizApi';
+import { getQuiz, regenerateQuestion, exportQuiz, subscribeToQuizProgress } from '@/api/QuizApi';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowBack, Download, Refresh, Quiz } from '@mui/icons-material';
 import AppBarButton from '@/components/AppBar/AppBarButton';
@@ -13,6 +13,7 @@ export default function ViewQuiz() {
     const [quiz, setQuiz] = useState(null);
     const [waitingForGenerationStart, setWaitingForGenerationStart] = useState(false);
     const [progressMessage, setProgressMessage] = useState("");
+    const closeStreamRef = useRef(null);
     let { quizUuid } = useParams();
     const navigate = useNavigate();
 
@@ -22,37 +23,57 @@ export default function ViewQuiz() {
         setQuiz(response.quiz);
         setProgressMessage("");
         setDownloadingQuiz(false);
+        setWaitingForGenerationStart(false);
     }, [quizUuid]);
 
-    // Function to check quiz progress
-    const pollQuizProgress = useCallback(async () => {
+    // Function to subscribe to quiz progress via SSE
+    const subscribeProgress = useCallback(() => {
         setProgressMessage("Moment, het genereren is bezig...");
-        while (true) {
-            const progressResponse = await getQuizProgress(quizUuid);
-
-            if (progressResponse.progress === null || progressResponse.progress === "Quiz generatie voltooid" || progressResponse.progress === "Regeneratie voltooid") {
-                await fetchQuiz();
-                break;
-            }
-
-            setProgressMessage(progressResponse.progress || "Starten...");
-            await new Promise(r => setTimeout(r, 2000));
+        
+        // Close any existing stream
+        if (closeStreamRef.current) {
+            closeStreamRef.current();
         }
+        
+        closeStreamRef.current = subscribeToQuizProgress(
+            quizUuid,
+            // onProgress
+            (progress) => {
+                setProgressMessage(progress || "Starten...");
+            },
+            // onComplete
+            async (finalProgress) => {
+                await fetchQuiz();
+            },
+            // onError
+            (error) => {
+                console.error('SSE Error:', error);
+                // Try to fetch quiz anyway in case generation completed
+                fetchQuiz();
+            }
+        );
     }, [quizUuid, fetchQuiz]);
 
     // useEffect for initial loading
     useEffect(() => {
-        pollQuizProgress();
-    }, [pollQuizProgress]);
+        subscribeProgress();
+        
+        // Cleanup on unmount
+        return () => {
+            if (closeStreamRef.current) {
+                closeStreamRef.current();
+            }
+        };
+    }, [subscribeProgress]);
 
     async function startQuestionRegenerate(questionId) {
         setWaitingForGenerationStart(true);
         setProgressMessage("Starten...");
 
         regenerateQuestion(quiz.id, questionId);
-        await pollQuizProgress();
-
-        setWaitingForGenerationStart(false);
+        
+        // Subscribe to progress for regeneration
+        subscribeProgress();
     }
 
     async function downloadBrightspaceCsv() {

@@ -2,16 +2,18 @@ import React, { useState } from 'react';
 import AppBarButton from '@/components/AppBar/AppBarButton';
 import AppShell from '@/components/AppShell';
 import "@fontsource/lato";
-import { Button, IconButton, TextField, Stack } from '@mui/material';
+import { Button, IconButton, TextField, Stack, LinearProgress, Typography, Box } from '@mui/material';
 import { Add, AutoAwesome, Delete, Refresh } from '@mui/icons-material';
 import { styled, useTheme } from '@mui/material/styles';
-import { generateQuiz } from '@/api/QuizApi';
+import { generateQuiz, subscribeToQuizProgress } from '@/api/QuizApi';
 import { useNavigate } from "react-router-dom";
 
 export default function GenerateQuiz() {
     const [subject, setSubject] = useState('');
     const [teachingMaterials, setTeachingMaterials] = useState([]);
     const [multiple_choice_count, setMultipleChoiceCount] = useState(5);
+    const [isGenerating, setIsGenerating] = useState(false);
+    const [progress, setProgress] = useState('');
     const theme = useTheme();
     const navigate = useNavigate();
 
@@ -19,6 +21,8 @@ export default function GenerateQuiz() {
         setSubject('');
         setTeachingMaterials([]);
         setMultipleChoiceCount(5);
+        setIsGenerating(false);
+        setProgress('');
     }
 
     function deleteTeachingMaterial(teachingMaterial) {
@@ -27,6 +31,9 @@ export default function GenerateQuiz() {
 
     async function startQuizGeneration(ev) {
         ev.preventDefault();
+        setIsGenerating(true);
+        setProgress('Quiz generatie wordt gestart...');
+        
         const formData = new FormData();
         formData.append('subject', subject);
         formData.append('multiple_choice_count', multiple_choice_count);
@@ -34,10 +41,38 @@ export default function GenerateQuiz() {
             formData.append(`files`, teachingMaterials[key]);
         }
 
-        const generateResponse = await generateQuiz(formData);
-        const quizUuid = generateResponse.quiz_uuid;
-        // Redirect user to result page after generation
-        navigate(`/quiz/${quizUuid}`);
+        try {
+            const generateResponse = await generateQuiz(formData);
+            const quizUuid = generateResponse.quiz_uuid;
+            
+            // Subscribe to SSE progress stream
+            subscribeToQuizProgress(
+                quizUuid,
+                // onProgress
+                (progressMessage) => {
+                    setProgress(progressMessage);
+                },
+                // onComplete
+                (finalMessage) => {
+                    setIsGenerating(false);
+                    // Navigate to quiz page after completion
+                    if (!finalMessage.toLowerCase().includes('mislukt') && 
+                        !finalMessage.toLowerCase().includes('error')) {
+                        navigate(`/quiz/${quizUuid}`);
+                    }
+                },
+                // onError
+                (error) => {
+                    console.error('SSE Error:', error);
+                    setProgress('Er is een fout opgetreden bij het volgen van de voortgang.');
+                    setIsGenerating(false);
+                }
+            );
+        } catch (error) {
+            console.error('Generation error:', error);
+            setProgress('Er is een fout opgetreden bij het starten van de quiz generatie.');
+            setIsGenerating(false);
+        }
     }
 
     return (
@@ -111,9 +146,23 @@ export default function GenerateQuiz() {
 
                     <h3>Stap 4. Genereer quiz:</h3>
                     <p>Let op dat het genereren enige tijd kan duren. Na het genereren kunt u de quiz bewerken en/of exporteren voor Brightspace.</p>
-                    <Button type="submit" variant="contained" startIcon={<AutoAwesome />}>
-                        Genereer quiz
+                    <Button 
+                        type="submit" 
+                        variant="contained" 
+                        startIcon={<AutoAwesome />}
+                        disabled={isGenerating}
+                    >
+                        {isGenerating ? 'Bezig met genereren...' : 'Genereer quiz'}
                     </Button>
+                    
+                    {isGenerating && (
+                        <Box sx={{ mt: 3, p: 2, bgcolor: 'background.paper', borderRadius: 1, boxShadow: 1 }}>
+                            <Typography variant="body1" sx={{ mb: 1, fontWeight: 'medium' }}>
+                                {progress}
+                            </Typography>
+                            <LinearProgress />
+                        </Box>
+                    )}
                 </form>
             </>
         }}</AppShell>
