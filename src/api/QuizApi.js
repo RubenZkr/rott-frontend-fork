@@ -9,17 +9,26 @@ export const submitQuizAnswers = (quizUuid, answers) => fetchApi(`/quizzes/${qui
 
 // SSE stream for quiz progress
 export const subscribeToQuizProgress = (quizUuid, onProgress, onComplete, onError) => {
-    const eventSource = new EventSource(`${apiConfig.baseUrl}/quizzes/${quizUuid}/progress`);
+    const url = `${apiConfig.baseUrl}/quizzes/${quizUuid}/progress`;
+    console.log('Subscribing to SSE:', url);
+    
+    const eventSource = new EventSource(url);
+    
+    eventSource.onopen = () => {
+        console.log('SSE connection opened');
+    };
     
     eventSource.onmessage = (event) => {
+        console.log('SSE message received:', event.data);
         const progress = event.data;
-        if (progress) {
+        if (progress && progress.trim() !== '') {
             onProgress(progress);
             
             // Check if generation is complete
             if (progress.toLowerCase().includes('voltooid') || 
                 progress.toLowerCase().includes('mislukt') || 
                 progress.toLowerCase().includes('error')) {
+                console.log('SSE closing - generation complete');
                 eventSource.close();
                 onComplete(progress);
             }
@@ -27,6 +36,7 @@ export const subscribeToQuizProgress = (quizUuid, onProgress, onComplete, onErro
     };
     
     eventSource.onerror = (error) => {
+        console.error('SSE error:', error, 'readyState:', eventSource.readyState);
         eventSource.close();
         if (onError) onError(error);
     };
