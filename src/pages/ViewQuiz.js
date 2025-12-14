@@ -29,12 +29,12 @@ export default function ViewQuiz() {
     // Function to subscribe to quiz progress via SSE
     const subscribeProgress = useCallback(() => {
         setProgressMessage("Moment, het genereren is bezig...");
-        
+
         // Close any existing stream
         if (closeStreamRef.current) {
             closeStreamRef.current();
         }
-        
+
         closeStreamRef.current = subscribeToQuizProgress(
             quizUuid,
             // onProgress
@@ -57,7 +57,7 @@ export default function ViewQuiz() {
     // useEffect for initial loading
     useEffect(() => {
         subscribeProgress();
-        
+
         // Cleanup on unmount
         return () => {
             if (closeStreamRef.current) {
@@ -71,7 +71,7 @@ export default function ViewQuiz() {
         setProgressMessage("Starten...");
 
         regenerateQuestion(quiz.id, questionId);
-        
+
         // Subscribe to progress for regeneration
         subscribeProgress();
     }
