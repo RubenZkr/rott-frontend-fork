@@ -1,8 +1,26 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import reportWebVitals from './reportWebVitals';
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
 import { createTheme, CssBaseline, ThemeProvider } from '@mui/material';
+import { AuthProvider } from '@/contexts/AuthContext';
+import { ProtectedRoute } from '@/components/ProtectedRoute';
+
+// Auth pages
+import Login from '@/pages/Login';
+
+// Student pages
+import StudentDashboard from '@/pages/StudentDashboard';
+import StudentQuizTaking from '@/pages/StudentQuizTaking';
+import StudentResults from '@/pages/StudentResults';
+
+// Teacher pages
+import TeacherDashboard from '@/pages/TeacherDashboard';
+import TeacherGenerateQuiz from '@/pages/TeacherGenerateQuiz';
+import TeacherQuizView from '@/pages/TeacherQuizView';
+import TeacherQuizStats from '@/pages/TeacherQuizStats';
+
+// Legacy pages (keep for backwards compatibility)
 import GenerateQuiz from '@/pages/GenerateQuiz';
 import ViewQuiz from '@/pages/ViewQuiz';
 import TakeQuiz from '@/pages/TakeQuiz';
@@ -29,8 +47,74 @@ const theme = createTheme({
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <GenerateQuiz />,
+    element: <Navigate to="/login" replace />,
   },
+  {
+    path: "/login",
+    element: <Login />,
+  },
+
+  // Student routes
+  {
+    path: "/student/dashboard",
+    element: (
+      <ProtectedRoute requiredRole="student">
+        <StudentDashboard />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/student/quiz/:quizId",
+    element: (
+      <ProtectedRoute requiredRole="student">
+        <StudentQuizTaking />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/student/results/:attemptId",
+    element: (
+      <ProtectedRoute requiredRole="student">
+        <StudentResults />
+      </ProtectedRoute>
+    ),
+  },
+
+  // Teacher routes
+  {
+    path: "/teacher/dashboard",
+    element: (
+      <ProtectedRoute requiredRole="docent">
+        <TeacherDashboard />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/teacher/generate-quiz",
+    element: (
+      <ProtectedRoute requiredRole="docent">
+        <TeacherGenerateQuiz />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/teacher/quiz/:quizId",
+    element: (
+      <ProtectedRoute requiredRole="docent">
+        <TeacherQuizView />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/teacher/quiz/:quizId/stats",
+    element: (
+      <ProtectedRoute requiredRole="docent">
+        <TeacherQuizStats />
+      </ProtectedRoute>
+    ),
+  },
+
+  // Legacy routes (backwards compatibility)
   {
     path: "/quiz/:quizUuid",
     element: <ViewQuiz />,
@@ -43,13 +127,19 @@ const router = createBrowserRouter([
     path: "/quiz-results/:quizUuid",
     element: <QuizResults />,
   },
+  {
+    path: "/generate",
+    element: <GenerateQuiz />,
+  },
 ]);
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <CssBaseline />
     <ThemeProvider theme={theme}>
-      <RouterProvider router={router} />
+      <AuthProvider>
+        <RouterProvider router={router} />
+      </AuthProvider>
     </ThemeProvider>
   </React.StrictMode>
 );
