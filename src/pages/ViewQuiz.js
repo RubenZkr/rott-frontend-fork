@@ -20,7 +20,7 @@ export default function ViewQuiz() {
     // Function to fetch the quiz data
     const fetchQuiz = useCallback(async () => {
         const response = await getQuiz(quizUuid);
-        setQuiz(response.quiz);
+        setQuiz(response);
         setProgressMessage("");
         setDownloadingQuiz(false);
         setWaitingForGenerationStart(false);

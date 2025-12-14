@@ -111,7 +111,7 @@ const TeacherGenerateQuiz = () => {
 
             // Subscribe to SSE progress
             const eventSource = new EventSource(
-                `${apiConfig.baseUrl}/api/quizzes/generate/${quizUuid}/progress`,
+                `${apiConfig.baseUrl}/api/quizzes/${quizUuid}/progress`,
                 {
                     withCredentials: false,
                 }

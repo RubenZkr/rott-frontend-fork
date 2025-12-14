@@ -10,6 +10,12 @@ export const fetchApi = async (endpoint, method = 'GET', body = null) => {
         },
     };
 
+    // Add JWT token if available
+    const token = localStorage.getItem('token');
+    if (token) {
+        options.headers['Authorization'] = `Bearer ${token}`;
+    }
+
     if (body) {
         options.body = JSON.stringify(body);
     }
@@ -24,7 +30,16 @@ export const fetchApi = async (endpoint, method = 'GET', body = null) => {
 };
 
 export const getBlob = async (endpoint) => {
-    const options = {method: 'GET'};
+    const options = {
+        method: 'GET',
+        headers: {}
+    };
+
+    // Add JWT token if available
+    const token = localStorage.getItem('token');
+    if (token) {
+        options.headers['Authorization'] = `Bearer ${token}`;
+    }
 
     const response = await fetch(`${apiUrl}${endpoint}`, options);
 
@@ -38,8 +53,15 @@ export const getBlob = async (endpoint) => {
 export const postFormData = async (endpoint, formData = null) => {
     const options = {
         method: 'POST',
+        headers: {},
         body: formData
     };
+
+    // Add JWT token if available
+    const token = localStorage.getItem('token');
+    if (token) {
+        options.headers['Authorization'] = `Bearer ${token}`;
+    }
 
     const response = await fetch(`${apiUrl}${endpoint}`, options);
 
