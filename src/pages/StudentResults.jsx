@@ -8,16 +8,13 @@ import {
     Button,
     CircularProgress,
     Alert,
-    Card,
-    CardContent,
-    Chip,
-    Grid,
-    Divider,
+    LinearProgress,
+    Stack
 } from '@mui/material';
 import {
-    CheckCircle as CheckCircleIcon,
-    Cancel as CancelIcon,
-    TrendingUp as TrendingUpIcon,
+    CheckCircleOutline as CheckCircleOutlineIcon,
+    RemoveCircleOutline as RemoveCircleOutlineIcon,
+    ArrowBack as ArrowBackIcon
 } from '@mui/icons-material';
 import { attemptService } from '@/services/apiService';
 import { format } from 'date-fns';
@@ -49,7 +46,7 @@ const StudentResults = () => {
 
     if (loading) {
         return (
-            <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
+            <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh" bgcolor="#F3F4F6">
                 <CircularProgress />
             </Box>
         );
@@ -57,143 +54,145 @@ const StudentResults = () => {
 
     if (error) {
         return (
-            <Container maxWidth="md" sx={{ py: 4 }}>
+            <Container maxWidth="lg" sx={{ py: 4 }}>
                 <Alert severity="error">{error}</Alert>
                 <Button onClick={() => navigate('/student/dashboard')} sx={{ mt: 2 }}>
-                    Terug naar Dashboard
+                    Terug naar overzicht
                 </Button>
             </Container>
         );
     }
 
-    if (!results) {
-        return null;
-    }
+    if (!results) return null;
 
-    const getGradeColor = (grade) => {
-        if (grade >= 8) return 'success';
-        if (grade >= 6) return 'primary';
-        if (grade >= 5.5) return 'warning';
-        return 'error';
-    };
+    const percentage = (results.earned_points / results.total_points) * 100;
 
     return (
-        <Container maxWidth="md" sx={{ py: 4 }}>
-            {/* Header */}
-            <Paper sx={{ p: 4, mb: 3, textAlign: 'center' }}>
-                <Typography variant="h4" gutterBottom>
-                    {results.quiz_title}
+        <Box sx={{ minHeight: '100vh', bgcolor: '#EEF2FF', py: 4 }}>
+            <Container maxWidth="md">
+                {/* Header Link */}
+                <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
+                    <Button
+                        startIcon={<ArrowBackIcon fontSize="small" />}
+                        onClick={() => navigate('/student/dashboard')}
+                        sx={{
+                            color: '#4B5563',
+                            textTransform: 'none',
+                            fontWeight: 500,
+                            '&:hover': { bgcolor: 'transparent', color: '#111827' }
+                        }}
+                    >
+                        Terug naar overzicht
+                    </Button>
+                </Box>
+
+                {/* Main Summary Card */}
+                <Paper sx={{ p: 4, borderRadius: 4, mb: 4, boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)' }}>
+                    <Box sx={{ mb: 3 }}>
+                        <Typography variant="h5" sx={{ fontWeight: 700, color: '#1F2937', mb: 1 }}>
+                            {results.quiz_title}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', gap: 2 }}>
+                            {/* Placeholder icons/text for subject/date */}
+                            <span>Wiskunde</span> {/* Mock subject */}
+                            <span>{results.completed_at && format(new Date(results.completed_at), 'd MMMM yyyy', { locale: nl })}</span>
+                        </Typography>
+                    </Box>
+
+                    <Box sx={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', mb: 2 }}>
+                        <Box>
+                            <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                                Cijfer
+                            </Typography>
+                            <Typography variant="h2" sx={{ fontWeight: 700, color: '#1F2937', lineHeight: 1 }}>
+                                {results.grade.toFixed(1)}
+                            </Typography>
+                        </Box>
+                        <Box sx={{ textAlign: 'right' }}>
+                            <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                                Score
+                            </Typography>
+                            <Typography variant="h5" sx={{ fontWeight: 600, color: '#1F2937' }}>
+                                {results.earned_points} / {results.total_points}
+                            </Typography>
+                        </Box>
+                    </Box>
+
+                    <Box>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                            <Typography variant="body2" color="text.secondary">
+                                Behaald percentage
+                            </Typography>
+                            <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                                {Math.round(percentage)}%
+                            </Typography>
+                        </Box>
+                        <LinearProgress
+                            variant="determinate"
+                            value={percentage}
+                            sx={{
+                                height: 12,
+                                borderRadius: 6,
+                                bgcolor: '#F3F4F6',
+                                '& .MuiLinearProgress-bar': {
+                                    bgcolor: '#111827', // Black/Dark bar as per design
+                                    borderRadius: 6
+                                }
+                            }}
+                        />
+                    </Box>
+                </Paper>
+
+                {/* Questions List Header */}
+                <Typography variant="h6" sx={{ fontWeight: 600, color: '#4B5563', mb: 2 }}>
+                    Vraag per Vraag
                 </Typography>
-                <Typography variant="body1" color="text.secondary" gutterBottom>
-                    Voltooid op {results.completed_at && format(new Date(results.completed_at), 'PPP', { locale: nl })}
-                </Typography>
 
-                <Grid container spacing={3} sx={{ mt: 2 }}>
-                    <Grid item xs={12} md={4}>
-                        <Box>
-                            <Typography variant="h3" color="primary">
-                                {results.score.toFixed(1)}%
-                            </Typography>
-                            <Typography color="text.secondary">Score</Typography>
-                        </Box>
-                    </Grid>
-                    <Grid item xs={12} md={4}>
-                        <Box>
-                            <Chip
-                                label={results.grade.toFixed(1)}
-                                color={getGradeColor(results.grade)}
-                                sx={{ fontSize: '2rem', height: '60px', width: '80px' }}
-                            />
-                            <Typography color="text.secondary" sx={{ mt: 1 }}>Cijfer</Typography>
-                        </Box>
-                    </Grid>
-                    <Grid item xs={12} md={4}>
-                        <Box>
-                            <Typography variant="h3" color="secondary">
-                                {results.earned_points}/{results.total_points}
-                            </Typography>
-                            <Typography color="text.secondary">Punten</Typography>
-                        </Box>
-                    </Grid>
-                </Grid>
-            </Paper>
+                <Stack spacing={2}>
+                    {results.questions.map((question, index) => (
+                        <Paper key={index} sx={{ p: 0, borderRadius: 3, overflow: 'hidden', boxShadow: 'none', border: '1px solid #E5E7EB' }}>
+                            <Box sx={{ p: 3, display: 'flex', gap: 2 }}>
+                                <Box sx={{ pt: 0.5 }}>
+                                    {question.is_correct ? (
+                                        <CheckCircleOutlineIcon color="success" fontSize="large" sx={{ color: '#22C55E' }} />
+                                    ) : (
+                                        <RemoveCircleOutlineIcon color="warning" fontSize="large" sx={{ color: '#F59E0B' }} />
+                                    )}
+                                </Box>
+                                <Box sx={{ flexGrow: 1 }}>
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                                        <Typography variant="subtitle1" sx={{ fontWeight: 600, color: results.is_correct ? '#22C55E' : (question.points_earned > 0 ? '#F59E0B' : '#EF4444') }}>
+                                            Vraag {index + 1}: {question.question_text}
+                                        </Typography>
+                                        <Typography variant="caption" sx={{ fontWeight: 600, color: '#6B7280', bgcolor: '#F9FAFB', px: 1, py: 0.5, borderRadius: 1, border: '1px solid #E5E7EB', height: 'fit-content' }}>
+                                            {question.points_earned}/{question.points}
+                                        </Typography>
+                                    </Box>
 
-            {/* Questions Review */}
-            <Typography variant="h5" gutterBottom sx={{ mb: 2 }}>
-                Vraag voor Vraag
-            </Typography>
+                                    <Typography variant="body2" sx={{ color: '#6B7280' }}>
+                                        Antwoord: <span style={{ color: '#1F2937', fontWeight: 500 }}>{question.student_answer || '-'}</span>
+                                    </Typography>
 
-            {results.questions.map((question, index) => (
-                <Card key={index} sx={{ mb: 2 }}>
-                    <CardContent>
-                        <Box display="flex" justifyContent="space-between" alignItems="start" mb={2}>
-                            <Box flex={1}>
-                                <Typography variant="h6" gutterBottom>
-                                    Vraag {index + 1}: {question.question_text}
-                                </Typography>
+                                    {!question.is_correct && (
+                                        <Box sx={{ mt: 1, p: 1.5, bgcolor: '#FEF2F2', borderRadius: 1, border: '1px solid #FEE2E2' }}>
+                                            <Typography variant="body2" color="error" sx={{ fontSize: '0.875rem' }}>
+                                                Correct antwoord: <span style={{ fontWeight: 600 }}>{question.correct_answer}</span>
+                                            </Typography>
+                                            {question.feedback && (
+                                                <Typography variant="body2" sx={{ mt: 0.5, color: '#DC2626', fontSize: '0.85rem' }}>
+                                                    {question.feedback}
+                                                </Typography>
+                                            )}
+                                        </Box>
+                                    )}
+                                </Box>
                             </Box>
-                            <Box>
-                                {question.is_correct ? (
-                                    <CheckCircleIcon color="success" sx={{ fontSize: 40 }} />
-                                ) : (
-                                    <CancelIcon color="error" sx={{ fontSize: 40 }} />
-                                )}
-                            </Box>
-                        </Box>
+                        </Paper>
+                    ))}
+                </Stack>
 
-                        <Divider sx={{ my: 2 }} />
-
-                        {/* Student Answer */}
-                        <Box mb={2}>
-                            <Typography variant="subtitle2" color="text.secondary">
-                                Jouw antwoord:
-                            </Typography>
-                            <Typography variant="body1">
-                                {question.student_answer || 'Geen antwoord gegeven'}
-                            </Typography>
-                        </Box>
-
-                        {/* Correct Answer (if wrong) */}
-                        {!question.is_correct && (
-                            <Box mb={2}>
-                                <Typography variant="subtitle2" color="text.secondary">
-                                    Correct antwoord:
-                                </Typography>
-                                <Typography variant="body1" color="success.main">
-                                    {question.correct_answer}
-                                </Typography>
-                            </Box>
-                        )}
-
-                        {/* Points */}
-                        <Box mb={2}>
-                            <Chip
-                                size="small"
-                                label={`${question.points_earned} / ${question.points} punten`}
-                                color={question.is_correct ? 'success' : 'error'}
-                            />
-                        </Box>
-
-                        {/* Feedback */}
-                        {question.feedback && (
-                            <Alert severity={question.is_correct ? 'success' : 'info'} sx={{ mt: 2 }}>
-                                <strong>Feedback:</strong> {question.feedback}
-                            </Alert>
-                        )}
-                    </CardContent>
-                </Card>
-            ))}
-
-            {/* Actions */}
-            <Box display="flex" justifyContent="center" gap={2} mt={4}>
-                <Button
-                    variant="outlined"
-                    onClick={() => navigate('/student/dashboard')}
-                >
-                    Terug naar Dashboard
-                </Button>
-            </Box>
-        </Container>
+            </Container>
+        </Box>
     );
 };
 

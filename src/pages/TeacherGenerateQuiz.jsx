@@ -16,11 +16,15 @@ import {
     Stack,
     Chip,
     IconButton,
+    InputAdornment
 } from '@mui/material';
 import {
     CloudUpload as CloudUploadIcon,
     Delete as DeleteIcon,
     ArrowBack as ArrowBackIcon,
+    AutoAwesome as AutoAwesomeIcon,
+    Description as DescriptionIcon,
+    Numbers as NumbersIcon
 } from '@mui/icons-material';
 import { subjectService } from '@/services/apiService';
 import apiConfig from '@/config/apiConfig';
@@ -146,152 +150,272 @@ const TeacherGenerateQuiz = () => {
     };
 
     return (
-        <Container maxWidth="md" sx={{ py: 4 }}>
-            <Box mb={3}>
-                <Button
-                    startIcon={<ArrowBackIcon />}
-                    onClick={() => navigate('/teacher/dashboard')}
-                >
-                    Terug naar Dashboard
-                </Button>
-            </Box>
-
-            <Paper sx={{ p: 4 }}>
-                <Typography variant="h4" gutterBottom>
-                    Genereer Nieuwe Toets met AI
-                </Typography>
-                <Typography variant="body1" color="text.secondary" paragraph>
-                    Upload lesmateriaal en laat AI automatisch vragen genereren
-                </Typography>
-
-                {error && (
-                    <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError('')}>
-                        {error}
-                    </Alert>
-                )}
-
-                <form onSubmit={handleSubmit}>
-                    {/* Subject Selection */}
-                    <FormControl fullWidth margin="normal" required>
-                        <InputLabel>Onderwerp</InputLabel>
-                        <Select
-                            value={selectedSubject}
-                            onChange={(e) => setSelectedSubject(e.target.value)}
-                            disabled={isGenerating}
-                        >
-                            {subjects.map((subject) => (
-                                <MenuItem key={subject.id} value={subject.id}>
-                                    {subject.name}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
-
-                    {/* Quiz Title */}
-                    <TextField
-                        fullWidth
-                        label="Toets Titel"
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        margin="normal"
-                        required
-                        disabled={isGenerating}
-                        helperText="Bijvoorbeeld: Hoofdstuk 3 - Databases"
-                    />
-
-                    {/* Question Counts */}
-                    <Typography variant="h6" sx={{ mt: 3, mb: 2 }}>
-                        Aantal Vragen
-                    </Typography>
-                    <Stack spacing={2}>
-                        <TextField
-                            label="Multiple Choice"
-                            type="number"
-                            value={questionCounts.multiple_choice}
-                            onChange={(e) => setQuestionCounts({ ...questionCounts, multiple_choice: parseInt(e.target.value) || 0 })}
-                            disabled={isGenerating}
-                            inputProps={{ min: 0, max: 20 }}
-                        />
-                        <TextField
-                            label="Waar/Niet Waar"
-                            type="number"
-                            value={questionCounts.true_false}
-                            onChange={(e) => setQuestionCounts({ ...questionCounts, true_false: parseInt(e.target.value) || 0 })}
-                            disabled={isGenerating}
-                            inputProps={{ min: 0, max: 10 }}
-                        />
-                        <TextField
-                            label="Open Vragen"
-                            type="number"
-                            value={questionCounts.short_answer}
-                            onChange={(e) => setQuestionCounts({ ...questionCounts, short_answer: parseInt(e.target.value) || 0 })}
-                            disabled={isGenerating}
-                            inputProps={{ min: 0, max: 10 }}
-                        />
-                    </Stack>
-
-                    {/* File Upload */}
-                    <Typography variant="h6" sx={{ mt: 3, mb: 2 }}>
-                        Lesmateriaal
-                    </Typography>
+        <Box sx={{ minHeight: '100vh', bgcolor: '#FDF2F8', py: 4 }}>
+            <Container maxWidth="md">
+                <Box mb={4} display="flex" alignItems="center">
                     <Button
-                        variant="outlined"
-                        component="label"
-                        startIcon={<CloudUploadIcon />}
-                        disabled={isGenerating}
-                        fullWidth
+                        startIcon={<ArrowBackIcon fontSize="small" />}
+                        onClick={() => navigate('/teacher/dashboard')}
+                        sx={{
+                            color: '#4B5563',
+                            textTransform: 'none',
+                            fontWeight: 500,
+                            '&:hover': { bgcolor: 'transparent', color: '#111827' }
+                        }}
                     >
-                        Upload Bestanden (PDF, DOC, DOCX, PPT)
-                        <input
-                            type="file"
-                            hidden
-                            multiple
-                            accept=".pdf,.doc,.docx,.ppt,.pptx"
-                            onChange={handleFileChange}
-                        />
+                        Terug naar Dashboard
                     </Button>
+                </Box>
 
-                    {/* Uploaded Files List */}
-                    {files.length > 0 && (
-                        <Box mt={2}>
-                            <Stack spacing={1}>
-                                {files.map((file, index) => (
-                                    <Chip
-                                        key={index}
-                                        label={file.name}
-                                        onDelete={() => handleRemoveFile(index)}
-                                        deleteIcon={<DeleteIcon />}
+                <Paper sx={{
+                    p: 6,
+                    borderRadius: 4,
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+                }}>
+                    <Box sx={{ mb: 4, textAlign: 'center' }}>
+                        <Box sx={{
+                            width: 64,
+                            height: 64,
+                            borderRadius: '50%',
+                            bgcolor: '#F5F3FF',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            mx: 'auto',
+                            mb: 2
+                        }}>
+                            <AutoAwesomeIcon sx={{ fontSize: 32, color: '#0F172A' }} />
+                        </Box>
+                        <Typography variant="h4" sx={{ fontWeight: 700, color: '#1F2937', mb: 1 }}>
+                            Nieuwe Toets Genereren
+                        </Typography>
+                        <Typography variant="body1" color="text.secondary">
+                            Upload je lesmateriaal en laat AI automatisch vragen genereren
+                        </Typography>
+                    </Box>
+
+                    {error && (
+                        <Alert severity="error" sx={{ mb: 4, borderRadius: 2 }} onClose={() => setError('')}>
+                            {error}
+                        </Alert>
+                    )}
+
+                    <form onSubmit={handleSubmit}>
+                        <Stack spacing={4}>
+                            {/* General Info Section */}
+                            <Box>
+                                <Typography variant="h6" sx={{ fontWeight: 600, mb: 2, color: '#374151' }}>
+                                    Algemene Informatie
+                                </Typography>
+                                <Stack spacing={3}>
+                                    <FormControl fullWidth>
+                                        <InputLabel sx={{ bgcolor: 'white', px: 0.5 }}>Onderwerp</InputLabel>
+                                        <Select
+                                            value={selectedSubject}
+                                            onChange={(e) => setSelectedSubject(e.target.value)}
+                                            disabled={isGenerating}
+                                            sx={{ borderRadius: 2 }}
+                                        >
+                                            {subjects.map((subject) => (
+                                                <MenuItem key={subject.id} value={subject.id}>
+                                                    {subject.name}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
+
+                                    <TextField
+                                        fullWidth
+                                        label="Toets Titel"
+                                        placeholder="Bijv. Hoofdstuk 3 - De Romeinse Tijd"
+                                        value={title}
+                                        onChange={(e) => setTitle(e.target.value)}
                                         disabled={isGenerating}
+                                        InputProps={{
+                                            sx: { borderRadius: 2 }
+                                        }}
+                                        InputLabelProps={{
+                                            shrink: true,
+                                        }}
                                     />
-                                ))}
-                            </Stack>
-                        </Box>
-                    )}
+                                </Stack>
+                            </Box>
 
-                    {/* Progress */}
-                    {isGenerating && (
-                        <Box mt={3}>
-                            <LinearProgress />
-                            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                                {progress}
-                            </Typography>
-                        </Box>
-                    )}
+                            {/* Question Counts Section */}
+                            <Box>
+                                <Typography variant="h6" sx={{ fontWeight: 600, mb: 2, color: '#374151', display: 'flex', alignItems: 'center', gap: 1 }}>
+                                    <NumbersIcon fontSize="small" color="action" />
+                                    Aantal Vragen
+                                </Typography>
+                                <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+                                    <TextField
+                                        label="Multiple Choice"
+                                        type="number"
+                                        fullWidth
+                                        value={questionCounts.multiple_choice}
+                                        onChange={(e) => setQuestionCounts({ ...questionCounts, multiple_choice: parseInt(e.target.value) || 0 })}
+                                        disabled={isGenerating}
+                                        inputProps={{ min: 0, max: 20 }}
+                                        InputProps={{ sx: { borderRadius: 2 } }}
+                                    />
+                                    <TextField
+                                        label="Waar/Niet Waar"
+                                        type="number"
+                                        fullWidth
+                                        value={questionCounts.true_false}
+                                        onChange={(e) => setQuestionCounts({ ...questionCounts, true_false: parseInt(e.target.value) || 0 })}
+                                        disabled={isGenerating}
+                                        inputProps={{ min: 0, max: 10 }}
+                                        InputProps={{ sx: { borderRadius: 2 } }}
+                                    />
+                                    <TextField
+                                        label="Open Vragen"
+                                        type="number"
+                                        fullWidth
+                                        value={questionCounts.short_answer}
+                                        onChange={(e) => setQuestionCounts({ ...questionCounts, short_answer: parseInt(e.target.value) || 0 })}
+                                        disabled={isGenerating}
+                                        inputProps={{ min: 0, max: 10 }}
+                                        InputProps={{ sx: { borderRadius: 2 } }}
+                                    />
+                                </Stack>
+                            </Box>
 
-                    {/* Submit Button */}
-                    <Button
-                        type="submit"
-                        variant="contained"
-                        size="large"
-                        fullWidth
-                        sx={{ mt: 3 }}
-                        disabled={isGenerating || files.length === 0}
-                    >
-                        {isGenerating ? 'Bezig met genereren...' : 'Genereer Toets'}
-                    </Button>
-                </form>
-            </Paper>
-        </Container>
+                            {/* File Upload Section */}
+                            <Box>
+                                <Typography variant="h6" sx={{ fontWeight: 600, mb: 2, color: '#374151', display: 'flex', alignItems: 'center', gap: 1 }}>
+                                    <DescriptionIcon fontSize="small" color="action" />
+                                    Lesmateriaal
+                                </Typography>
+                                <Button
+                                    component="label"
+                                    fullWidth
+                                    disabled={isGenerating}
+                                    sx={{
+                                        border: '2px dashed #CBD5E1',
+                                        borderRadius: 3,
+                                        p: 4,
+                                        bgcolor: '#F8FAFC',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
+                                        gap: 1,
+                                        textTransform: 'none',
+                                        transition: 'all 0.2s',
+                                        '&:hover': {
+                                            bgcolor: '#F1F5F9',
+                                            borderColor: '#94A3B8'
+                                        }
+                                    }}
+                                >
+                                    <CloudUploadIcon sx={{ fontSize: 40, color: '#64748B' }} />
+                                    <Typography variant="body1" sx={{ color: '#475569', fontWeight: 500 }}>
+                                        Klik om bestanden te uploaden
+                                    </Typography>
+                                    <Typography variant="caption" sx={{ color: '#94A3B8' }}>
+                                        Ondersteund: PDF, DOCX, PPTX
+                                    </Typography>
+                                    <input
+                                        type="file"
+                                        hidden
+                                        multiple
+                                        accept=".pdf,.doc,.docx,.ppt,.pptx"
+                                        onChange={handleFileChange}
+                                    />
+                                </Button>
+
+                                {/* File List */}
+                                {files.length > 0 && (
+                                    <Stack spacing={1} sx={{ mt: 2 }}>
+                                        {files.map((file, index) => (
+                                            <Paper
+                                                key={index}
+                                                variant="outlined"
+                                                sx={{
+                                                    p: 1.5,
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'space-between',
+                                                    borderRadius: 2,
+                                                    bgcolor: 'white'
+                                                }}
+                                            >
+                                                <Box display="flex" alignItems="center" gap={1.5}>
+                                                    <DescriptionIcon color="primary" fontSize="small" />
+                                                    <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                                                        {file.name}
+                                                    </Typography>
+                                                    <Typography variant="caption" color="text.secondary">
+                                                        ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                                                    </Typography>
+                                                </Box>
+                                                <IconButton
+                                                    size="small"
+                                                    onClick={() => handleRemoveFile(index)}
+                                                    disabled={isGenerating}
+                                                >
+                                                    <DeleteIcon fontSize="small" />
+                                                </IconButton>
+                                            </Paper>
+                                        ))}
+                                    </Stack>
+                                )}
+                            </Box>
+
+                            {/* Progress Bar */}
+                            {isGenerating && (
+                                <Box>
+                                    <Box display="flex" justifyContent="space-between" mb={1}>
+                                        <Typography variant="body2" sx={{ fontWeight: 600, color: '#1F2937' }}>
+                                            Genereren...
+                                        </Typography>
+                                        <Typography variant="body2" color="text.secondary">
+                                            {progress}
+                                        </Typography>
+                                    </Box>
+                                    <LinearProgress
+                                        sx={{
+                                            height: 8,
+                                            borderRadius: 4,
+                                            bgcolor: '#E2E8F0',
+                                            '& .MuiLinearProgress-bar': {
+                                                bgcolor: '#0F172A',
+                                                borderRadius: 4
+                                            }
+                                        }}
+                                    />
+                                </Box>
+                            )}
+
+                            {/* Action Buttons */}
+                            <Button
+                                type="submit"
+                                variant="contained"
+                                size="large"
+                                fullWidth
+                                disabled={isGenerating || files.length === 0}
+                                sx={{
+                                    py: 2,
+                                    bgcolor: '#0F172A',
+                                    color: 'white',
+                                    borderRadius: 2,
+                                    fontWeight: 600,
+                                    textTransform: 'none',
+                                    fontSize: '1rem',
+                                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                                    '&:hover': {
+                                        bgcolor: '#1E293B',
+                                        boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+                                    }
+                                }}
+                            >
+                                {isGenerating ? 'Even geduld...' : 'Genereer Toets'}
+                            </Button>
+                        </Stack>
+                    </form>
+                </Paper>
+            </Container>
+        </Box>
     );
 };
 
