@@ -23,8 +23,11 @@ import {
     ExpandMore as ExpandMoreIcon,
     Publish as PublishIcon,
     Assessment as AssessmentIcon,
+    PictureAsPdf as PdfIcon,
+    Assignment as AnswerSheetIcon,
 } from '@mui/icons-material';
 import { quizService } from '@/services/apiService';
+import apiConfig from '@/config/apiConfig';
 
 const TeacherQuizView = () => {
     const { quizId } = useParams();
@@ -62,6 +65,62 @@ const TeacherQuizView = () => {
 
     const handleViewStats = () => {
         navigate(`/teacher/quiz/${quizId}/stats`);
+    };
+
+    const handleDownloadQuizPdf = async () => {
+        try {
+            const token = localStorage.getItem('access_token');
+            const response = await fetch(`${apiConfig.baseUrl}/api/quizzes/${quizId}/pdf/student`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Download mislukt');
+            }
+
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${quiz.title}_toets.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        } catch (err) {
+            console.error('Failed to download quiz PDF:', err);
+            setError('Kon PDF niet downloaden');
+        }
+    };
+
+    const handleDownloadAnswersPdf = async () => {
+        try {
+            const token = localStorage.getItem('access_token');
+            const response = await fetch(`${apiConfig.baseUrl}/api/quizzes/${quizId}/pdf/answers`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Download mislukt');
+            }
+
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${quiz.title}_antwoorden.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        } catch (err) {
+            console.error('Failed to download answer sheet PDF:', err);
+            setError('Kon antwoordenblad niet downloaden');
+        }
     };
 
     if (loading) {
@@ -129,6 +188,20 @@ const TeacherQuizView = () => {
                                 Statistieken
                             </Button>
                         )}
+                        <Button
+                            variant="outlined"
+                            startIcon={<PdfIcon />}
+                            onClick={handleDownloadQuizPdf}
+                        >
+                            Download Toets (PDF)
+                        </Button>
+                        <Button
+                            variant="outlined"
+                            startIcon={<AnswerSheetIcon />}
+                            onClick={handleDownloadAnswersPdf}
+                        >
+                            Download Antwoordenblad
+                        </Button>
                     </Box>
                 </Box>
             </Paper>
