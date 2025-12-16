@@ -6,21 +6,21 @@ import { createTheme, CssBaseline, ThemeProvider } from '@mui/material';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 
-// Auth pages
+// Auth paginas
 import Login from '@/pages/Login';
 
-// Student pages
+// Student paginas
 import StudentDashboard from '@/pages/StudentDashboard';
 import StudentQuizTaking from '@/pages/StudentQuizTaking';
 import StudentResults from '@/pages/StudentResults';
 
-// Teacher pages
+// Docent paginas
 import TeacherDashboard from '@/pages/TeacherDashboard';
 import TeacherGenerateQuiz from '@/pages/TeacherGenerateQuiz';
 import TeacherQuizView from '@/pages/TeacherQuizView';
 import TeacherQuizStats from '@/pages/TeacherQuizStats';
 
-// Legacy pages (keep for backwards compatibility)
+// Legacy pages  oude paginas
 import GenerateQuiz from '@/pages/GenerateQuiz';
 import ViewQuiz from '@/pages/ViewQuiz';
 import TakeQuiz from '@/pages/TakeQuiz';
@@ -144,7 +144,4 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   </React.StrictMode>
 );
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();

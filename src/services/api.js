@@ -1,7 +1,6 @@
 import axios from 'axios';
 import apiConfig from '@/config/apiConfig';
 
-// Create axios instance with default config
 const api = axios.create({
     baseURL: apiConfig.baseUrl,
     headers: {
@@ -9,7 +8,6 @@ const api = axios.create({
     },
 });
 
-// Request interceptor to add JWT token
 api.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('access_token');
@@ -23,12 +21,10 @@ api.interceptors.request.use(
     }
 );
 
-// Response interceptor to handle errors
 api.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response?.status === 401) {
-            // Unauthorized - clear token and redirect to login
             localStorage.removeItem('access_token');
             localStorage.removeItem('user');
             window.location.href = '/login';

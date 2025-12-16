@@ -22,13 +22,10 @@ export const AuthProvider = ({ children }) => {
             const savedToken = localStorage.getItem('access_token');
             if (savedToken) {
                 try {
-                    // Verify token is still valid
                     const decoded = jwtDecode(savedToken);
                     if (decoded.exp * 1000 < Date.now()) {
-                        // Token expired
                         logout();
                     } else {
-                        // Fetch current user
                         const userData = await authService.getCurrentUser();
                         setUser(userData);
                         setToken(savedToken);
@@ -52,7 +49,6 @@ export const AuthProvider = ({ children }) => {
             localStorage.setItem('access_token', access_token);
             setToken(access_token);
 
-            // Fetch user data
             const userData = await authService.getCurrentUser();
             setUser(userData);
             localStorage.setItem('user', JSON.stringify(userData));
@@ -77,6 +73,7 @@ export const AuthProvider = ({ children }) => {
         return user?.role === 'student';
     };
 
+    // admin heb ik toegevoegd maar nog geen functionele dingen
     const isAdmin = () => {
         return user?.role === 'admin';
     };

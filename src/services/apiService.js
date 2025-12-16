@@ -1,6 +1,5 @@
 import api from './api';
 
-// Authentication
 export const authService = {
     login: async (username, password) => {
         const params = new URLSearchParams();
@@ -59,7 +58,6 @@ export const subjectService = {
     },
 };
 
-// Quizzes
 export const quizService = {
     getAll: async (filters = {}) => {
         const params = new URLSearchParams();
@@ -132,7 +130,6 @@ export const attemptService = {
     },
 };
 
-// Dashboard
 export const dashboardService = {
     getStudentDashboard: async () => {
         const response = await api.get('/api/dashboard/student');
