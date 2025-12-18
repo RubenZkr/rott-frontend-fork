@@ -231,7 +231,7 @@ const Login = () => {
                                     Docent
                                 </Typography>
                                 <Typography variant="body2" color="#5B21B6">
-                                    docent1 / Student123!
+                                    docent1 / Docent123!
                                 </Typography>
                             </Box>
                         </Stack>
