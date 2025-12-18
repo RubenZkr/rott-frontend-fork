@@ -213,7 +213,7 @@ const Login = () => {
                                     Leerling
                                 </Typography>
                                 <Typography variant="body2" color="#1E40AF">
-                                    student / student
+                                    student1 / Student123!
                                 </Typography>
                             </Box>
                             <Box
@@ -231,7 +231,7 @@ const Login = () => {
                                     Docent
                                 </Typography>
                                 <Typography variant="body2" color="#5B21B6">
-                                    docent / docent
+                                    docent1 / Student123!
                                 </Typography>
                             </Box>
                         </Stack>
