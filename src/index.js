@@ -19,6 +19,7 @@ import TeacherDashboard from '@/pages/TeacherDashboard';
 import TeacherGenerateQuiz from '@/pages/TeacherGenerateQuiz';
 import TeacherQuizView from '@/pages/TeacherQuizView';
 import TeacherQuizStats from '@/pages/TeacherQuizStats';
+import TeacherStudentView from '@/pages/TeacherStudentView';
 
 // Legacy pages  oude paginas
 import GenerateQuiz from '@/pages/GenerateQuiz';
@@ -110,6 +111,14 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute requiredRole="docent">
         <TeacherQuizStats />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/teacher/student/:studentId",
+    element: (
+      <ProtectedRoute requiredRole="docent">
+        <TeacherStudentView />
       </ProtectedRoute>
     ),
   },

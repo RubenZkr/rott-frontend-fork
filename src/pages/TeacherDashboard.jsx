@@ -25,7 +25,11 @@ import {
     TableContainer,
     TableHead,
     TableRow,
-    LinearProgress
+    LinearProgress,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem
 } from '@mui/material';
 import {
     Add as AddIcon,
@@ -36,22 +40,11 @@ import {
     School as SchoolIcon,
     Description as DescriptionIcon,
     ArrowBack as ArrowBackIcon,
-    Download as DownloadIcon
+    Download as DownloadIcon,
+    Person as PersonIcon
 } from '@mui/icons-material';
 import { useAuth } from '@/contexts/AuthContext';
-import { subjectService, quizService } from '@/services/apiService';
-
-// Mock data for the "Klasgemiddelde" table
-const MOCK_STUDENTS = [
-    { name: 'Lennart de Ridder', progress: 100, average: 8.4 },
-    { name: 'Sophie de Vries', progress: 100, average: 7.9 },
-    { name: 'Ruben Vermeulen', progress: 100, average: 7.9 },
-    { name: 'Tim Jonkers', progress: 25, average: 7.8 },
-    { name: 'Maurice van Bruggen', progress: 100, average: 7.6 },
-    { name: 'Robbert Lapoutre', progress: 50, average: 7.1 },
-    { name: 'Lucas Vermeer', progress: 50, average: 7.0 },
-    { name: 'Emma Bakker', progress: 0, average: null },
-];
+import { subjectService, quizService, dashboardService } from '@/services/apiService';
 
 const TeacherDashboard = () => {
     const navigate = useNavigate();
@@ -62,6 +55,10 @@ const TeacherDashboard = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
+    // Dashboard data (real data from API)
+    const [dashboardStats, setDashboardStats] = useState(null);
+    const [selectedSubjectFilter, setSelectedSubjectFilter] = useState('');
+
     // Subject dialog state
     const [subjectDialogOpen, setSubjectDialogOpen] = useState(false);
     const [subjectFormData, setSubjectFormData] = useState({ name: '', description: '' });
@@ -71,21 +68,66 @@ const TeacherDashboard = () => {
         loadData();
     }, []);
 
+    // Reload dashboard when filter changes
+    useEffect(() => {
+        if (!loading) {
+            loadDashboardStats();
+        }
+    }, [selectedSubjectFilter]);
+
+    const loadDashboardStats = async () => {
+        try {
+            const subjectId = selectedSubjectFilter || null;
+            const stats = await dashboardService.getTeacherDashboard(subjectId);
+            setDashboardStats(stats);
+        } catch (err) {
+            console.error('Failed to load dashboard stats:', err);
+        }
+    };
+
     const loadData = async () => {
         try {
             setLoading(true);
-            const [subjectsData, quizzesData] = await Promise.all([
+            const [subjectsData, quizzesData, dashboardData] = await Promise.all([
                 subjectService.getAll(),
                 quizService.getAll(),
+                dashboardService.getTeacherDashboard(),
             ]);
             setSubjects(subjectsData);
             setQuizzes(quizzesData);
+            setDashboardStats(dashboardData);
         } catch (err) {
             console.error('Failed to load data:', err);
             setError('Kon data niet laden');
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleExportCSV = async () => {
+        try {
+            const subjectId = selectedSubjectFilter || null;
+            const blob = await dashboardService.exportStudentsCSV(subjectId);
+
+            // Create download link
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = selectedSubjectFilter
+                ? `studenten_${subjects.find(s => s.id === selectedSubjectFilter)?.name || 'export'}.csv`
+                : 'studenten_overzicht.csv';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        } catch (err) {
+            console.error('Failed to export:', err);
+            setError('Export mislukt');
+        }
+    };
+
+    const handleViewStudent = (studentId) => {
+        navigate(`/teacher/student/${studentId}`);
     };
 
     const handleCreateSubject = () => {
@@ -269,19 +311,43 @@ const TeacherDashboard = () => {
                 {/* Dashboard View (Class Average) */}
                 {view === 'dashboard' && (
                     <Paper sx={{ borderRadius: 3, overflow: 'hidden', boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)' }}>
-                        <Box sx={{ p: 3, borderBottom: '1px solid #F3F4F6', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Box sx={{ p: 3, borderBottom: '1px solid #F3F4F6', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                 <AssessmentIcon color="action" />
                                 <Typography variant="h6" sx={{ fontWeight: 700, color: '#1F2937' }}>
                                     Klasgemiddelde
                                 </Typography>
+                                {dashboardStats && (
+                                    <Chip
+                                        label={`${dashboardStats.total_students} studenten`}
+                                        size="small"
+                                        sx={{ ml: 1 }}
+                                    />
+                                )}
                             </Box>
-                            <Box sx={{ display: 'flex', gap: 2 }}>
-                                <Button variant="outlined" size="small" endIcon={<ArrowBackIcon sx={{ transform: 'rotate(-90deg)' }} />}>
-                                    Alle Vakken
-                                </Button>
-                                <Button variant="outlined" size="small" startIcon={<DownloadIcon />}>
-                                    Exporteer
+                            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+                                <FormControl size="small" sx={{ minWidth: 150 }}>
+                                    <InputLabel>Filter op vak</InputLabel>
+                                    <Select
+                                        value={selectedSubjectFilter}
+                                        label="Filter op vak"
+                                        onChange={(e) => setSelectedSubjectFilter(e.target.value)}
+                                    >
+                                        <MenuItem value="">Alle Vakken</MenuItem>
+                                        {subjects.map((subject) => (
+                                            <MenuItem key={subject.id} value={subject.id}>
+                                                {subject.name}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                                <Button
+                                    variant="outlined"
+                                    size="small"
+                                    startIcon={<DownloadIcon />}
+                                    onClick={handleExportCSV}
+                                >
+                                    Exporteer CSV
                                 </Button>
                             </Box>
                         </Box>
@@ -291,30 +357,54 @@ const TeacherDashboard = () => {
                                 <TableHead>
                                     <TableRow sx={{ bgcolor: '#F9FAFB' }}>
                                         <TableCell sx={{ fontWeight: 600, color: '#374151' }}>Leerling</TableCell>
-                                        <TableCell sx={{ fontWeight: 600, color: '#374151', width: '40%' }}>Voortgang</TableCell>
+                                        <TableCell sx={{ fontWeight: 600, color: '#374151', width: '35%' }}>Voortgang</TableCell>
+                                        <TableCell align="center" sx={{ fontWeight: 600, color: '#374151' }}>Toetsen</TableCell>
                                         <TableCell align="right" sx={{ fontWeight: 600, color: '#374151' }}>Gemiddelde</TableCell>
+                                        <TableCell align="center" sx={{ fontWeight: 600, color: '#374151' }}>Actie</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {MOCK_STUDENTS.map((student, index) => (
-                                        <TableRow key={index} hover>
-                                            <TableCell sx={{ fontWeight: 500, color: '#111827' }}>{student.name}</TableCell>
+                                    {dashboardStats?.students?.length === 0 && (
+                                        <TableRow>
+                                            <TableCell colSpan={5} align="center" sx={{ py: 4, color: 'text.secondary' }}>
+                                                Geen studenten gevonden
+                                            </TableCell>
+                                        </TableRow>
+                                    )}
+                                    {dashboardStats?.students?.map((student) => (
+                                        <TableRow
+                                            key={student.student_id}
+                                            hover
+                                            sx={{ cursor: 'pointer' }}
+                                            onClick={() => handleViewStudent(student.student_id)}
+                                        >
+                                            <TableCell sx={{ fontWeight: 500, color: '#111827' }}>
+                                                {student.student_name}
+                                            </TableCell>
                                             <TableCell>
                                                 <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
                                                     <Box sx={{ width: '100%', mr: 1, bgcolor: '#E5E7EB', borderRadius: 4, height: 8 }}>
                                                         <Box sx={{
-                                                            width: `${student.progress}%`,
-                                                            bgcolor: getProgressColor(student.progress),
+                                                            width: `${student.progress_percentage}%`,
+                                                            bgcolor: getProgressColor(student.progress_percentage),
                                                             height: '100%',
                                                             borderRadius: 4
                                                         }} />
                                                     </Box>
+                                                    <Typography variant="caption" sx={{ minWidth: 40 }}>
+                                                        {student.progress_percentage.toFixed(0)}%
+                                                    </Typography>
                                                 </Box>
+                                            </TableCell>
+                                            <TableCell align="center">
+                                                <Typography variant="body2">
+                                                    {student.completed_quizzes}/{student.total_quizzes_available}
+                                                </Typography>
                                             </TableCell>
                                             <TableCell align="right">
                                                 <Box sx={{
                                                     display: 'inline-flex',
-                                                    bgcolor: getGradeColor(student.average),
+                                                    bgcolor: getGradeColor(student.average_grade),
                                                     color: 'white',
                                                     fontWeight: 700,
                                                     px: 1.5,
@@ -323,18 +413,47 @@ const TeacherDashboard = () => {
                                                     minWidth: 40,
                                                     justifyContent: 'center'
                                                 }}>
-                                                    {student.average ? student.average.toFixed(1) : '-'}
+                                                    {student.average_grade ? student.average_grade.toFixed(1) : '-'}
                                                 </Box>
+                                            </TableCell>
+                                            <TableCell align="center">
+                                                <IconButton
+                                                    size="small"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleViewStudent(student.student_id);
+                                                    }}
+                                                >
+                                                    <PersonIcon />
+                                                </IconButton>
                                             </TableCell>
                                         </TableRow>
                                     ))}
-                                    <TableRow sx={{ bgcolor: '#F9FAFB' }}>
-                                        <TableCell sx={{ fontWeight: 700, color: '#111827' }}>Klasgemiddelde</TableCell>
-                                        <TableCell></TableCell>
-                                        <TableCell align="right" sx={{ fontWeight: 700, color: '#374151' }}>
-                                            6.7
-                                        </TableCell>
-                                    </TableRow>
+                                    {dashboardStats && dashboardStats.students?.length > 0 && (
+                                        <TableRow sx={{ bgcolor: '#F9FAFB' }}>
+                                            <TableCell sx={{ fontWeight: 700, color: '#111827' }}>Klasgemiddelde</TableCell>
+                                            <TableCell></TableCell>
+                                            <TableCell align="center" sx={{ fontWeight: 600 }}>
+                                                {dashboardStats.published_quizzes} toetsen
+                                            </TableCell>
+                                            <TableCell align="right" sx={{ fontWeight: 700, color: '#374151' }}>
+                                                <Box sx={{
+                                                    display: 'inline-flex',
+                                                    bgcolor: getGradeColor(dashboardStats.class_average_grade),
+                                                    color: 'white',
+                                                    fontWeight: 700,
+                                                    px: 1.5,
+                                                    py: 0.5,
+                                                    borderRadius: 1,
+                                                    minWidth: 40,
+                                                    justifyContent: 'center'
+                                                }}>
+                                                    {dashboardStats.class_average_grade ? dashboardStats.class_average_grade.toFixed(1) : '-'}
+                                                </Box>
+                                            </TableCell>
+                                            <TableCell></TableCell>
+                                        </TableRow>
+                                    )}
                                 </TableBody>
                             </Table>
                         </TableContainer>

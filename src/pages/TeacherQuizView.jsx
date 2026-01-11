@@ -17,14 +17,22 @@ import {
     List,
     ListItem,
     ListItemText,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    TextField,
 } from '@mui/material';
 import {
     ArrowBack as ArrowBackIcon,
     ExpandMore as ExpandMoreIcon,
     Publish as PublishIcon,
+    Unpublished as UnpublishedIcon,
     Assessment as AssessmentIcon,
     PictureAsPdf as PdfIcon,
     Assignment as AnswerSheetIcon,
+    Refresh as RefreshIcon,
+    Schedule as ScheduleIcon,
 } from '@mui/icons-material';
 import { quizService } from '@/services/apiService';
 import apiConfig from '@/config/apiConfig';
@@ -35,6 +43,13 @@ const TeacherQuizView = () => {
     const [quiz, setQuiz] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [regeneratingQuestionId, setRegeneratingQuestionId] = useState(null);
+
+    // Publish dialog state
+    const [publishDialogOpen, setPublishDialogOpen] = useState(false);
+    const [availableFrom, setAvailableFrom] = useState('');
+    const [availableUntil, setAvailableUntil] = useState('');
+    const [publishing, setPublishing] = useState(false);
 
     useEffect(() => {
         loadQuiz();
@@ -55,12 +70,44 @@ const TeacherQuizView = () => {
 
     const handlePublish = async () => {
         try {
-            await quizService.publish(quizId);
+            setPublishing(true);
+            const fromDate = availableFrom ? new Date(availableFrom).toISOString() : null;
+            const untilDate = availableUntil ? new Date(availableUntil).toISOString() : null;
+            await quizService.publish(quizId, fromDate, untilDate);
+            setPublishDialogOpen(false);
+            setAvailableFrom('');
+            setAvailableUntil('');
             loadQuiz();
         } catch (err) {
             console.error('Failed to publish quiz:', err);
             setError('Kon toets niet publiceren');
+        } finally {
+            setPublishing(false);
         }
+    };
+
+    const handleUnpublish = async () => {
+        if (!window.confirm('Weet je zeker dat je deze toets wilt depubliceren? Studenten kunnen de toets dan niet meer maken.')) {
+            return;
+        }
+        try {
+            await quizService.unpublish(quizId);
+            loadQuiz();
+        } catch (err) {
+            console.error('Failed to unpublish quiz:', err);
+            setError('Kon toets niet depubliceren');
+        }
+    };
+
+    const handleOpenPublishDialog = () => {
+        // Pre-fill with existing availability if editing
+        if (quiz?.available_from) {
+            setAvailableFrom(quiz.available_from.slice(0, 16)); // Format for datetime-local
+        }
+        if (quiz?.available_until) {
+            setAvailableUntil(quiz.available_until.slice(0, 16));
+        }
+        setPublishDialogOpen(true);
     };
 
     const handleViewStats = () => {
@@ -123,6 +170,29 @@ const TeacherQuizView = () => {
         }
     };
 
+    const handleRegenerateQuestion = async (questionId) => {
+        if (regeneratingQuestionId) return; // Prevent multiple simultaneous regenerations
+
+        try {
+            setRegeneratingQuestionId(questionId);
+            setError('');
+
+            await quizService.regenerateQuestion(quizId, questionId);
+
+            // Poll for completion (the regeneration happens async via Celery)
+            // Wait a bit then reload the quiz to see the new question
+            setTimeout(async () => {
+                await loadQuiz();
+                setRegeneratingQuestionId(null);
+            }, 5000); // Wait 5 seconds for regeneration to complete
+
+        } catch (err) {
+            console.error('Failed to regenerate question:', err);
+            setError('Kon vraag niet hergenereren');
+            setRegeneratingQuestionId(null);
+        }
+    };
+
     if (loading) {
         return (
             <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
@@ -168,25 +238,46 @@ const TeacherQuizView = () => {
                             color={quiz.status === 'published' ? 'success' : 'default'}
                             sx={{ mt: 1 }}
                         />
+                        {/* Show availability info if published with time window */}
+                        {quiz.status === 'published' && (quiz.available_from || quiz.available_until) && (
+                            <Box sx={{ mt: 1 }}>
+                                <Typography variant="body2" color="text.secondary">
+                                    <ScheduleIcon sx={{ fontSize: 16, mr: 0.5, verticalAlign: 'middle' }} />
+                                    {quiz.available_from && `Vanaf: ${new Date(quiz.available_from).toLocaleString('nl-NL')}`}
+                                    {quiz.available_from && quiz.available_until && ' - '}
+                                    {quiz.available_until && `Tot: ${new Date(quiz.available_until).toLocaleString('nl-NL')}`}
+                                </Typography>
+                            </Box>
+                        )}
                     </Box>
-                    <Box display="flex" gap={1}>
+                    <Box display="flex" gap={1} flexWrap="wrap">
                         {quiz.status === 'draft' && (
                             <Button
                                 variant="contained"
                                 startIcon={<PublishIcon />}
-                                onClick={handlePublish}
+                                onClick={handleOpenPublishDialog}
                             >
                                 Publiceer
                             </Button>
                         )}
                         {quiz.status === 'published' && (
-                            <Button
-                                variant="contained"
-                                startIcon={<AssessmentIcon />}
-                                onClick={handleViewStats}
-                            >
-                                Statistieken
-                            </Button>
+                            <>
+                                <Button
+                                    variant="contained"
+                                    startIcon={<AssessmentIcon />}
+                                    onClick={handleViewStats}
+                                >
+                                    Statistieken
+                                </Button>
+                                <Button
+                                    variant="outlined"
+                                    color="warning"
+                                    startIcon={<UnpublishedIcon />}
+                                    onClick={handleUnpublish}
+                                >
+                                    Depubliceren
+                                </Button>
+                            </>
                         )}
                         <Button
                             variant="outlined"
@@ -231,6 +322,22 @@ const TeacherQuizView = () => {
                                     size="small"
                                     color="primary"
                                 />
+                                {quiz.status === 'draft' && (
+                                    <Button
+                                        size="small"
+                                        variant="outlined"
+                                        color="secondary"
+                                        startIcon={regeneratingQuestionId === question.id ? <CircularProgress size={16} /> : <RefreshIcon />}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleRegenerateQuestion(question.id);
+                                        }}
+                                        disabled={regeneratingQuestionId !== null}
+                                        sx={{ ml: 1 }}
+                                    >
+                                        {regeneratingQuestionId === question.id ? 'Bezig...' : 'Hergenereren'}
+                                    </Button>
+                                )}
                             </Box>
                         </AccordionSummary>
                         <AccordionDetails>
@@ -302,6 +409,49 @@ const TeacherQuizView = () => {
             ) : (
                 <Alert severity="info">Deze toets heeft nog geen vragen.</Alert>
             )}
+
+            {/* Publish Dialog */}
+            <Dialog open={publishDialogOpen} onClose={() => setPublishDialogOpen(false)} maxWidth="sm" fullWidth>
+                <DialogTitle>Toets Publiceren</DialogTitle>
+                <DialogContent>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                        Optioneel: Stel een tijdbestek in waarin de toets beschikbaar is voor studenten.
+                        Laat leeg voor directe en permanente beschikbaarheid.
+                    </Typography>
+                    <TextField
+                        label="Beschikbaar vanaf"
+                        type="datetime-local"
+                        value={availableFrom}
+                        onChange={(e) => setAvailableFrom(e.target.value)}
+                        fullWidth
+                        sx={{ mb: 2 }}
+                        InputLabelProps={{ shrink: true }}
+                        helperText="Laat leeg voor direct beschikbaar"
+                    />
+                    <TextField
+                        label="Beschikbaar tot"
+                        type="datetime-local"
+                        value={availableUntil}
+                        onChange={(e) => setAvailableUntil(e.target.value)}
+                        fullWidth
+                        InputLabelProps={{ shrink: true }}
+                        helperText="Laat leeg voor geen einddatum"
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setPublishDialogOpen(false)}>
+                        Annuleren
+                    </Button>
+                    <Button
+                        variant="contained"
+                        onClick={handlePublish}
+                        disabled={publishing}
+                        startIcon={publishing ? <CircularProgress size={16} /> : <PublishIcon />}
+                    >
+                        {publishing ? 'Bezig...' : 'Publiceren'}
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Container>
     );
 };

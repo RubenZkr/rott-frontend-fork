@@ -62,7 +62,7 @@ const StudentQuizTaking = () => {
             ...answers,
             [questionId]: {
                 question_id: questionId,
-                ...(type === 'SA' ? { answer_text: value } : { selected_choice_id: value }),
+                ...(type === 'SA' ? { text_answer: value } : { choice_id: value }),
             },
         });
     };
@@ -166,7 +166,7 @@ const StudentQuizTaking = () => {
                     {/* Multiple Choice or True/False */}
                     {(currentQuestion.type === 'MC' || currentQuestion.type === 'TF') && (
                         <RadioGroup
-                            value={answers[currentQuestion.id]?.selected_choice_id || ''}
+                            value={answers[currentQuestion.id]?.choice_id || ''}
                             onChange={(e) => handleAnswerChange(currentQuestion.id, e.target.value, currentQuestion.type)}
                         >
                             {currentQuestion.choices.map((choice) => (
@@ -187,7 +187,7 @@ const StudentQuizTaking = () => {
                             multiline
                             rows={4}
                             placeholder="Type je antwoord hier..."
-                            value={answers[currentQuestion.id]?.answer_text || ''}
+                            value={answers[currentQuestion.id]?.text_answer || ''}
                             onChange={(e) => handleAnswerChange(currentQuestion.id, e.target.value, 'SA')}
                         />
                     )}
@@ -223,7 +223,7 @@ const StudentQuizTaking = () => {
             {/* Progress Indicator */}
             <Box sx={{ mt: 3, textAlign: 'center' }}>
                 <Typography variant="body2" color="text.secondary">
-                    Beantwoord: {Object.values(answers).filter(a => a.selected_choice_id || a.answer_text).length} / {quiz.questions.length}
+                    Beantwoord: {Object.values(answers).filter(a => a.choice_id || a.text_answer).length} / {quiz.questions.length}
                 </Typography>
             </Box>
         </Container>

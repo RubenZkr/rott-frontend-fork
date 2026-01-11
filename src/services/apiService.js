@@ -82,8 +82,24 @@ export const quizService = {
         return response.data;
     },
 
-    publish: async (id) => {
-        const response = await api.post(`/api/quizzes/${id}/publish`);
+    publish: async (id, availableFrom = null, availableUntil = null) => {
+        const data = {};
+        if (availableFrom) data.available_from = availableFrom;
+        if (availableUntil) data.available_until = availableUntil;
+        const response = await api.post(`/api/quizzes/${id}/publish`, Object.keys(data).length > 0 ? data : null);
+        return response.data;
+    },
+
+    unpublish: async (id) => {
+        const response = await api.post(`/api/quizzes/${id}/unpublish`);
+        return response.data;
+    },
+
+    updateAvailability: async (id, availableFrom, availableUntil) => {
+        const response = await api.patch(`/api/quizzes/${id}/availability`, {
+            available_from: availableFrom,
+            available_until: availableUntil
+        });
         return response.data;
     },
 
@@ -103,19 +119,24 @@ export const quizService = {
         });
         return response.data;
     },
+
+    regenerateQuestion: async (quizId, questionId) => {
+        const response = await api.post(`/api/quizzes/${quizId}/regenerate_question/${questionId}`);
+        return response.data;
+    },
 };
 
 // Attempts (Student quiz taking)
 export const attemptService = {
+    // FIXED: Changed from /api/quizzes/{quizId}/start to /api/attempts/quizzes/{quizId}/start
     startAttempt: async (quizId) => {
-        const response = await api.post(`/api/quizzes/${quizId}/start`);
+        const response = await api.post(`/api/attempts/quizzes/${quizId}/start`);
         return response.data;
     },
 
+    // FIXED: Backend expects a direct array, not {answers: [...]}
     submitAnswers: async (attemptId, answers) => {
-        const response = await api.post(`/api/attempts/${attemptId}/submit`, {
-            answers,
-        });
+        const response = await api.post(`/api/attempts/${attemptId}/submit`, answers);
         return response.data;
     },
 
@@ -124,8 +145,18 @@ export const attemptService = {
         return response.data;
     },
 
-    getMyAttempts: async () => {
-        const response = await api.get('/api/attempts/my-attempts');
+    // FIXED: Changed from /api/attempts/my-attempts to /api/attempts/user/me
+    getMyAttempts: async (quizId = null) => {
+        let url = '/api/attempts/user/me';
+        if (quizId) {
+            url += `?quiz_id=${quizId}`;
+        }
+        const response = await api.get(url);
+        return response.data;
+    },
+
+    getAttempt: async (attemptId) => {
+        const response = await api.get(`/api/attempts/${attemptId}`);
         return response.data;
     },
 };
@@ -148,6 +179,28 @@ export const dashboardService = {
 
     getStudentProgress: async (studentId) => {
         const response = await api.get(`/api/dashboard/teacher/student/${studentId}`);
+        return response.data;
+    },
+
+    // NEW: Get all students overview for teacher dashboard
+    getTeacherDashboard: async (subjectId = null) => {
+        let url = '/api/dashboard/teacher/students';
+        if (subjectId) {
+            url += `?subject_id=${subjectId}`;
+        }
+        const response = await api.get(url);
+        return response.data;
+    },
+
+    // NEW: Export students to CSV
+    exportStudentsCSV: async (subjectId = null) => {
+        let url = '/api/dashboard/teacher/students/export';
+        if (subjectId) {
+            url += `?subject_id=${subjectId}`;
+        }
+        const response = await api.get(url, {
+            responseType: 'blob',
+        });
         return response.data;
     },
 };
