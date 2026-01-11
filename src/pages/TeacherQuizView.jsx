@@ -22,6 +22,8 @@ import {
     DialogContent,
     DialogActions,
     TextField,
+    Snackbar,
+    LinearProgress,
 } from '@mui/material';
 import {
     ArrowBack as ArrowBackIcon,
@@ -44,6 +46,7 @@ const TeacherQuizView = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [regeneratingQuestionId, setRegeneratingQuestionId] = useState(null);
+    const [regenerationProgress, setRegenerationProgress] = useState('');
 
     // Publish dialog state
     const [publishDialogOpen, setPublishDialogOpen] = useState(false);
@@ -175,21 +178,69 @@ const TeacherQuizView = () => {
 
         try {
             setRegeneratingQuestionId(questionId);
+            setRegenerationProgress('Regeneratie starten...');
             setError('');
 
             await quizService.regenerateQuestion(quizId, questionId);
 
-            // Poll for completion (the regeneration happens async via Celery)
-            // Wait a bit then reload the quiz to see the new question
-            setTimeout(async () => {
-                await loadQuiz();
-                setRegeneratingQuestionId(null);
-            }, 5000); // Wait 5 seconds for regeneration to complete
+            // Use SSE stream to monitor progress
+            const eventSource = new EventSource(
+                `${apiConfig.baseUrl}/api/quizzes/${quizId}/progress`
+            );
+
+            eventSource.onmessage = async (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    setRegenerationProgress(data.message || 'Bezig...');
+
+                    // Check if regeneration is complete
+                    if (data.message && (
+                        data.message.includes('voltooid') ||
+                        data.message.includes('Completed') ||
+                        data.message.includes('Fout')
+                    )) {
+                        eventSource.close();
+
+                        // Reload the quiz to get the new question
+                        await loadQuiz();
+                        setRegeneratingQuestionId(null);
+                        setRegenerationProgress('');
+
+                        if (data.message.includes('Fout')) {
+                            setError(data.message);
+                        }
+                    }
+                } catch (parseError) {
+                    console.error('Failed to parse SSE data:', parseError);
+                }
+            };
+
+            eventSource.onerror = async (err) => {
+                console.error('SSE error:', err);
+                eventSource.close();
+                // Fallback: reload quiz after a delay
+                setTimeout(async () => {
+                    await loadQuiz();
+                    setRegeneratingQuestionId(null);
+                    setRegenerationProgress('');
+                }, 3000);
+            };
+
+            // Timeout fallback after 2 minutes
+            setTimeout(() => {
+                if (regeneratingQuestionId) {
+                    eventSource.close();
+                    loadQuiz();
+                    setRegeneratingQuestionId(null);
+                    setRegenerationProgress('');
+                }
+            }, 120000);
 
         } catch (err) {
             console.error('Failed to regenerate question:', err);
             setError('Kon vraag niet hergenereren');
             setRegeneratingQuestionId(null);
+            setRegenerationProgress('');
         }
     };
 
@@ -333,9 +384,11 @@ const TeacherQuizView = () => {
                                             handleRegenerateQuestion(question.id);
                                         }}
                                         disabled={regeneratingQuestionId !== null}
-                                        sx={{ ml: 1 }}
+                                        sx={{ ml: 1, minWidth: 180 }}
                                     >
-                                        {regeneratingQuestionId === question.id ? 'Bezig...' : 'Hergenereren'}
+                                        {regeneratingQuestionId === question.id
+                                            ? (regenerationProgress || 'Bezig...')
+                                            : 'Hergenereren'}
                                     </Button>
                                 )}
                             </Box>
@@ -452,6 +505,28 @@ const TeacherQuizView = () => {
                     </Button>
                 </DialogActions>
             </Dialog>
+
+            {/* Regeneration Progress Snackbar */}
+            <Snackbar
+                open={!!regeneratingQuestionId}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            >
+                <Alert
+                    severity="info"
+                    sx={{ width: '100%', minWidth: 400 }}
+                    icon={<CircularProgress size={20} color="inherit" />}
+                >
+                    <Box>
+                        <Typography variant="body2" fontWeight="bold">
+                            Vraag wordt gehergenereerd...
+                        </Typography>
+                        <Typography variant="body2">
+                            {regenerationProgress || 'Even geduld...'}
+                        </Typography>
+                        <LinearProgress sx={{ mt: 1 }} />
+                    </Box>
+                </Alert>
+            </Snackbar>
         </Container>
     );
 };

@@ -191,6 +191,19 @@ const TeacherDashboard = () => {
         navigate(`/teacher/quiz/${quizId}/stats`);
     };
 
+    const handleDeleteQuiz = async (quizId, quizTitle) => {
+        if (!window.confirm(`Weet je zeker dat je de toets "${quizTitle}" wilt verwijderen? Dit kan niet ongedaan worden gemaakt.`)) {
+            return;
+        }
+        try {
+            await quizService.delete(quizId);
+            loadData();
+        } catch (err) {
+            console.error('Failed to delete quiz:', err);
+            setError('Kon toets niet verwijderen');
+        }
+    };
+
     const getGradeColor = (grade) => {
         if (!grade) return '#E5E7EB';
         if (grade >= 8.0) return '#22C55E';
@@ -510,6 +523,14 @@ const TeacherDashboard = () => {
                                                     Statistieken
                                                 </Button>
                                             )}
+                                            <IconButton
+                                                size="small"
+                                                color="error"
+                                                onClick={() => handleDeleteQuiz(quiz.id, quiz.title)}
+                                                title="Verwijderen"
+                                            >
+                                                <DeleteIcon fontSize="small" />
+                                            </IconButton>
                                         </CardActions>
                                     </Card>
                                 </Grid>

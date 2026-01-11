@@ -37,8 +37,8 @@ const TeacherGenerateQuiz = () => {
     const [files, setFiles] = useState([]);
     const [questionCounts, setQuestionCounts] = useState({
         multiple_choice: 5,
-        true_false: 3,
-        short_answer: 2,
+        true_false: 0,      // Hidden but kept for future use
+        short_answer: 0,    // Hidden but kept for future use
     });
     const [isGenerating, setIsGenerating] = useState(false);
     const [progress, setProgress] = useState('');
@@ -269,15 +269,18 @@ const TeacherGenerateQuiz = () => {
                                 </Typography>
                                 <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
                                     <TextField
-                                        label="Multiple Choice"
+                                        label="Aantal Multiple Choice Vragen"
                                         type="number"
                                         fullWidth
                                         value={questionCounts.multiple_choice}
                                         onChange={(e) => setQuestionCounts({ ...questionCounts, multiple_choice: parseInt(e.target.value) || 0 })}
                                         disabled={isGenerating}
-                                        inputProps={{ min: 0, max: 20 }}
+                                        inputProps={{ min: 1, max: 20 }}
                                         InputProps={{ sx: { borderRadius: 2 } }}
+                                        helperText="Minimaal 1, maximaal 20 vragen"
                                     />
+                                    {/* Hidden fields - kept for future use but not shown to users */}
+                                    {/* 
                                     <TextField
                                         label="Waar/Niet Waar"
                                         type="number"
@@ -298,6 +301,7 @@ const TeacherGenerateQuiz = () => {
                                         inputProps={{ min: 0, max: 10 }}
                                         InputProps={{ sx: { borderRadius: 2 } }}
                                     />
+                                    */}
                                 </Stack>
                             </Box>
 
