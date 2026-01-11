@@ -45,7 +45,8 @@ import {
     TrendingUp as TrendingUpIcon,
     People as PeopleIcon,
     Quiz as QuizIcon,
-    CheckCircle as CheckCircleIcon
+    CheckCircle as CheckCircleIcon,
+    HelpOutline as HelpOutlineIcon
 } from '@mui/icons-material';
 import { useAuth } from '@/contexts/AuthContext';
 import { subjectService, quizService, dashboardService } from '@/services/apiService';
@@ -237,9 +238,19 @@ const TeacherDashboard = () => {
                 <Typography variant="body2" color="text.secondary">
                     Ingelogd als docent
                 </Typography>
-                <Button variant="outlined" size="small" onClick={logout}>
-                    Uitloggen
-                </Button>
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                    <Button 
+                        variant="outlined" 
+                        size="small" 
+                        startIcon={<HelpOutlineIcon />}
+                        onClick={() => navigate('/teacher/help')}
+                    >
+                        Help
+                    </Button>
+                    <Button variant="outlined" size="small" onClick={logout}>
+                        Uitloggen
+                    </Button>
+                </Box>
             </Box>
 
             <Container maxWidth="lg" sx={{ mt: 8 }}>

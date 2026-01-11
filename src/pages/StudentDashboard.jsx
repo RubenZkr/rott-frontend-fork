@@ -22,7 +22,8 @@ import {
 import {
     CheckCircle as CheckCircleIcon,
     EmojiEvents as EmojiEventsIcon,
-    School as SchoolIcon
+    School as SchoolIcon,
+    HelpOutline as HelpOutlineIcon
 } from '@mui/icons-material';
 import { useAuth } from '@/contexts/AuthContext';
 import { dashboardService, quizService } from '@/services/apiService';
@@ -91,9 +92,20 @@ const StudentDashboard = () => {
                 <Typography variant="body2" color="text.secondary">
                     Ingelogd als leerling: <span style={{ color: '#111827', fontWeight: 500 }}>{user?.username}</span>
                 </Typography>
-                <Button variant="outlined" size="small" onClick={logout} sx={{ textTransform: 'none', borderColor: '#E5E7EB', color: '#374151', '&:hover': { bgcolor: '#F9FAFB' } }}>
-                    Uitloggen
-                </Button>
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                    <Button 
+                        variant="outlined" 
+                        size="small" 
+                        startIcon={<HelpOutlineIcon />}
+                        onClick={() => navigate('/student/help')}
+                        sx={{ textTransform: 'none', borderColor: '#E5E7EB', color: '#374151', '&:hover': { bgcolor: '#F9FAFB' } }}
+                    >
+                        Help
+                    </Button>
+                    <Button variant="outlined" size="small" onClick={logout} sx={{ textTransform: 'none', borderColor: '#E5E7EB', color: '#374151', '&:hover': { bgcolor: '#F9FAFB' } }}>
+                        Uitloggen
+                    </Button>
+                </Box>
             </Box>
 
             <Container maxWidth="lg" sx={{ pt: 4 }}>

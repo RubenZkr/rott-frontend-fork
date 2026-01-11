@@ -13,6 +13,7 @@ import Login from '@/pages/Login';
 import StudentDashboard from '@/pages/StudentDashboard';
 import StudentQuizTaking from '@/pages/StudentQuizTaking';
 import StudentResults from '@/pages/StudentResults';
+import StudentHelp from '@/pages/StudentHelp';
 
 // Docent paginas
 import TeacherDashboard from '@/pages/TeacherDashboard';
@@ -20,8 +21,9 @@ import TeacherGenerateQuiz from '@/pages/TeacherGenerateQuiz';
 import TeacherQuizView from '@/pages/TeacherQuizView';
 import TeacherQuizStats from '@/pages/TeacherQuizStats';
 import TeacherStudentView from '@/pages/TeacherStudentView';
+import TeacherHelp from '@/pages/TeacherHelp';
 
-// Legacy pages  oude paginas
+// Legacy pages
 import GenerateQuiz from '@/pages/GenerateQuiz';
 import ViewQuiz from '@/pages/ViewQuiz';
 import TakeQuiz from '@/pages/TakeQuiz';
@@ -80,6 +82,14 @@ const router = createBrowserRouter([
       </ProtectedRoute>
     ),
   },
+  {
+    path: "/student/help",
+    element: (
+      <ProtectedRoute requiredRole="student">
+        <StudentHelp />
+      </ProtectedRoute>
+    ),
+  },
 
   // Teacher routes
   {
@@ -119,6 +129,14 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute requiredRole="docent">
         <TeacherStudentView />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/teacher/help",
+    element: (
+      <ProtectedRoute requiredRole="docent">
+        <TeacherHelp />
       </ProtectedRoute>
     ),
   },
