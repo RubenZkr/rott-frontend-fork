@@ -41,7 +41,11 @@ import {
     Description as DescriptionIcon,
     ArrowBack as ArrowBackIcon,
     Download as DownloadIcon,
-    Person as PersonIcon
+    Person as PersonIcon,
+    TrendingUp as TrendingUpIcon,
+    People as PeopleIcon,
+    Quiz as QuizIcon,
+    CheckCircle as CheckCircleIcon
 } from '@mui/icons-material';
 import { useAuth } from '@/contexts/AuthContext';
 import { subjectService, quizService, dashboardService } from '@/services/apiService';
@@ -49,7 +53,7 @@ import { subjectService, quizService, dashboardService } from '@/services/apiSer
 const TeacherDashboard = () => {
     const navigate = useNavigate();
     const { logout } = useAuth();
-    const [view, setView] = useState('dashboard'); // 'dashboard', 'subjects', 'quizzes'
+    const [view, setView] = useState('statistics'); // 'statistics', 'dashboard', 'subjects', 'quizzes'
     const [subjects, setSubjects] = useState([]);
     const [quizzes, setQuizzes] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -253,7 +257,7 @@ const TeacherDashboard = () => {
 
                 {/* Main Action Buttons */}
                 <Grid container spacing={2} sx={{ mb: 4 }}>
-                    <Grid item xs={12} md={4}>
+                    <Grid item xs={6} md={2.4}>
                         <Button
                             fullWidth
                             variant="contained"
@@ -265,7 +269,7 @@ const TeacherDashboard = () => {
                                 py: 2,
                                 borderRadius: 2,
                                 textTransform: 'none',
-                                fontSize: '1rem',
+                                fontSize: '0.9rem',
                                 fontWeight: 600,
                                 '&:hover': { bgcolor: '#1E293B' }
                             }}
@@ -273,11 +277,57 @@ const TeacherDashboard = () => {
                             Nieuwe Toets
                         </Button>
                     </Grid>
-                    <Grid item xs={12} md={4}>
+                    <Grid item xs={6} md={2.4}>
                         <Paper
                             component={Button}
                             fullWidth
-                            onClick={() => setView(view === 'quizzes' ? 'dashboard' : 'quizzes')}
+                            onClick={() => setView('statistics')}
+                            sx={{
+                                p: 2,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: 1,
+                                height: '100%',
+                                textTransform: 'none',
+                                color: view === 'statistics' ? '#0F172A' : '#4B5563',
+                                border: view === 'statistics' ? '2px solid #0F172A' : 'none',
+                                bgcolor: 'white',
+                                '&:hover': { bgcolor: '#F9FAFB' }
+                            }}
+                        >
+                            <TrendingUpIcon />
+                            <Typography variant="subtitle1" fontWeight={600}>Statistieken</Typography>
+                        </Paper>
+                    </Grid>
+                    <Grid item xs={6} md={2.4}>
+                        <Paper
+                            component={Button}
+                            fullWidth
+                            onClick={() => setView('dashboard')}
+                            sx={{
+                                p: 2,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: 1,
+                                height: '100%',
+                                textTransform: 'none',
+                                color: view === 'dashboard' ? '#0F172A' : '#4B5563',
+                                border: view === 'dashboard' ? '2px solid #0F172A' : 'none',
+                                bgcolor: 'white',
+                                '&:hover': { bgcolor: '#F9FAFB' }
+                            }}
+                        >
+                            <PeopleIcon />
+                            <Typography variant="subtitle1" fontWeight={600}>Leerlingen</Typography>
+                        </Paper>
+                    </Grid>
+                    <Grid item xs={6} md={2.4}>
+                        <Paper
+                            component={Button}
+                            fullWidth
+                            onClick={() => setView('quizzes')}
                             sx={{
                                 p: 2,
                                 display: 'flex',
@@ -293,14 +343,14 @@ const TeacherDashboard = () => {
                             }}
                         >
                             <DescriptionIcon />
-                            <Typography variant="subtitle1" fontWeight={600}>Beheer Toetsen</Typography>
+                            <Typography variant="subtitle1" fontWeight={600}>Toetsen</Typography>
                         </Paper>
                     </Grid>
-                    <Grid item xs={12} md={4}>
+                    <Grid item xs={6} md={2.4}>
                         <Paper
                             component={Button}
                             fullWidth
-                            onClick={() => setView(view === 'subjects' ? 'dashboard' : 'subjects')}
+                            onClick={() => setView('subjects')}
                             sx={{
                                 p: 2,
                                 display: 'flex',
@@ -316,10 +366,162 @@ const TeacherDashboard = () => {
                             }}
                         >
                             <SchoolIcon />
-                            <Typography variant="subtitle1" fontWeight={600}>Beheer Vakken</Typography>
+                            <Typography variant="subtitle1" fontWeight={600}>Vakken</Typography>
                         </Paper>
                     </Grid>
                 </Grid>
+
+                {/* Statistics Overview */}
+                {view === 'statistics' && dashboardStats && (
+                    <Box>
+                        {/* Stats Cards */}
+                        <Grid container spacing={3} sx={{ mb: 4 }}>
+                            <Grid item xs={12} sm={6} md={3}>
+                                <Paper sx={{ p: 3, borderRadius: 3, height: '100%', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+                                        <PeopleIcon sx={{ color: 'white', fontSize: 40, opacity: 0.8 }} />
+                                    </Box>
+                                    <Typography variant="h3" sx={{ color: 'white', fontWeight: 700, mb: 0.5 }}>
+                                        {dashboardStats.total_students}
+                                    </Typography>
+                                    <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
+                                        Totaal Studenten
+                                    </Typography>
+                                </Paper>
+                            </Grid>
+                            <Grid item xs={12} sm={6} md={3}>
+                                <Paper sx={{ p: 3, borderRadius: 3, height: '100%', background: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)' }}>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+                                        <QuizIcon sx={{ color: 'white', fontSize: 40, opacity: 0.8 }} />
+                                    </Box>
+                                    <Typography variant="h3" sx={{ color: 'white', fontWeight: 700, mb: 0.5 }}>
+                                        {dashboardStats.total_quizzes}
+                                    </Typography>
+                                    <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
+                                        Totaal Toetsen
+                                    </Typography>
+                                </Paper>
+                            </Grid>
+                            <Grid item xs={12} sm={6} md={3}>
+                                <Paper sx={{ p: 3, borderRadius: 3, height: '100%', background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' }}>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+                                        <CheckCircleIcon sx={{ color: 'white', fontSize: 40, opacity: 0.8 }} />
+                                    </Box>
+                                    <Typography variant="h3" sx={{ color: 'white', fontWeight: 700, mb: 0.5 }}>
+                                        {dashboardStats.published_quizzes}
+                                    </Typography>
+                                    <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
+                                        Gepubliceerd
+                                    </Typography>
+                                </Paper>
+                            </Grid>
+                            <Grid item xs={12} sm={6} md={3}>
+                                <Paper sx={{ p: 3, borderRadius: 3, height: '100%', background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)' }}>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+                                        <TrendingUpIcon sx={{ color: 'white', fontSize: 40, opacity: 0.8 }} />
+                                    </Box>
+                                    <Typography variant="h3" sx={{ color: 'white', fontWeight: 700, mb: 0.5 }}>
+                                        {dashboardStats.class_average_grade ? dashboardStats.class_average_grade.toFixed(1) : '-'}
+                                    </Typography>
+                                    <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
+                                        Klasgemiddelde
+                                    </Typography>
+                                </Paper>
+                            </Grid>
+                        </Grid>
+
+                        {/* Top Performers */}
+                        <Grid container spacing={3}>
+                            <Grid item xs={12} md={6}>
+                                <Paper sx={{ p: 3, borderRadius: 3 }}>
+                                    <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, color: '#1F2937' }}>
+                                        🏆 Top 5 Presteerders
+                                    </Typography>
+                                    {dashboardStats.students
+                                        ?.filter(s => s.average_grade != null)
+                                        .sort((a, b) => (b.average_grade || 0) - (a.average_grade || 0))
+                                        .slice(0, 5)
+                                        .map((student, index) => (
+                                            <Box key={student.student_id} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', py: 1.5, borderBottom: index < 4 ? '1px solid #F3F4F6' : 'none' }}>
+                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                                    <Typography variant="h6" sx={{ color: index === 0 ? '#FFD700' : index === 1 ? '#C0C0C0' : index === 2 ? '#CD7F32' : '#9CA3AF', fontWeight: 700, width: 24 }}>
+                                                        {index + 1}
+                                                    </Typography>
+                                                    <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                                                        {student.student_name}
+                                                    </Typography>
+                                                </Box>
+                                                <Box sx={{ bgcolor: getGradeColor(student.average_grade), color: 'white', fontWeight: 700, px: 1.5, py: 0.5, borderRadius: 1 }}>
+                                                    {student.average_grade?.toFixed(1) || '-'}
+                                                </Box>
+                                            </Box>
+                                        ))
+                                    }
+                                    {(!dashboardStats.students || dashboardStats.students.filter(s => s.average_grade != null).length === 0) && (
+                                        <Typography color="text.secondary" sx={{ py: 2, textAlign: 'center' }}>
+                                            Nog geen resultaten beschikbaar
+                                        </Typography>
+                                    )}
+                                </Paper>
+                            </Grid>
+                            <Grid item xs={12} md={6}>
+                                <Paper sx={{ p: 3, borderRadius: 3 }}>
+                                    <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, color: '#1F2937' }}>
+                                        📊 Voortgang Overzicht
+                                    </Typography>
+                                    <Box sx={{ mb: 3 }}>
+                                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                                            <Typography variant="body2" color="text.secondary">Gemiddelde Voortgang</Typography>
+                                            <Typography variant="body2" fontWeight={600}>
+                                                {dashboardStats.students?.length > 0
+                                                    ? (dashboardStats.students.reduce((sum, s) => sum + (s.progress_percentage || 0), 0) / dashboardStats.students.length).toFixed(0)
+                                                    : 0}%
+                                            </Typography>
+                                        </Box>
+                                        <LinearProgress
+                                            variant="determinate"
+                                            value={dashboardStats.students?.length > 0
+                                                ? dashboardStats.students.reduce((sum, s) => sum + (s.progress_percentage || 0), 0) / dashboardStats.students.length
+                                                : 0}
+                                            sx={{ height: 10, borderRadius: 5, bgcolor: '#E5E7EB', '& .MuiLinearProgress-bar': { bgcolor: '#10B981', borderRadius: 5 } }}
+                                        />
+                                    </Box>
+                                    <Box sx={{ mb: 3 }}>
+                                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                                            <Typography variant="body2" color="text.secondary">Gemiddelde Score</Typography>
+                                            <Typography variant="body2" fontWeight={600}>
+                                                {dashboardStats.class_average_score ? `${dashboardStats.class_average_score.toFixed(0)}%` : '-'}
+                                            </Typography>
+                                        </Box>
+                                        <LinearProgress
+                                            variant="determinate"
+                                            value={dashboardStats.class_average_score || 0}
+                                            sx={{ height: 10, borderRadius: 5, bgcolor: '#E5E7EB', '& .MuiLinearProgress-bar': { bgcolor: '#6366F1', borderRadius: 5 } }}
+                                        />
+                                    </Box>
+                                    <Grid container spacing={2}>
+                                        <Grid item xs={6}>
+                                            <Box sx={{ textAlign: 'center', p: 2, bgcolor: '#F0FDF4', borderRadius: 2 }}>
+                                                <Typography variant="h4" sx={{ fontWeight: 700, color: '#16A34A' }}>
+                                                    {dashboardStats.students?.filter(s => (s.average_grade || 0) >= 5.5).length || 0}
+                                                </Typography>
+                                                <Typography variant="caption" color="text.secondary">Voldoende</Typography>
+                                            </Box>
+                                        </Grid>
+                                        <Grid item xs={6}>
+                                            <Box sx={{ textAlign: 'center', p: 2, bgcolor: '#FEF2F2', borderRadius: 2 }}>
+                                                <Typography variant="h4" sx={{ fontWeight: 700, color: '#DC2626' }}>
+                                                    {dashboardStats.students?.filter(s => s.average_grade != null && s.average_grade < 5.5).length || 0}
+                                                </Typography>
+                                                <Typography variant="caption" color="text.secondary">Onvoldoende</Typography>
+                                            </Box>
+                                        </Grid>
+                                    </Grid>
+                                </Paper>
+                            </Grid>
+                        </Grid>
+                    </Box>
+                )}
 
                 {/* Dashboard View (Class Average) */}
                 {view === 'dashboard' && (

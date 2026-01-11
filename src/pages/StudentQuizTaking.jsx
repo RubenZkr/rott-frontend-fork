@@ -28,8 +28,12 @@ const StudentQuizTaking = () => {
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState('');
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+    const startedRef = React.useRef(false);
 
     useEffect(() => {
+        // Prevent double execution in React Strict Mode
+        if (startedRef.current) return;
+        startedRef.current = true;
         startQuiz();
     }, [quizId]);
 
