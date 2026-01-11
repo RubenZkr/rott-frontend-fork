@@ -93,9 +93,9 @@ const StudentDashboard = () => {
                     Ingelogd als leerling: <span style={{ color: '#111827', fontWeight: 500 }}>{user?.username}</span>
                 </Typography>
                 <Box sx={{ display: 'flex', gap: 1 }}>
-                    <Button 
-                        variant="outlined" 
-                        size="small" 
+                    <Button
+                        variant="outlined"
+                        size="small"
                         startIcon={<HelpOutlineIcon />}
                         onClick={() => navigate('/student/help')}
                         sx={{ textTransform: 'none', borderColor: '#E5E7EB', color: '#374151', '&:hover': { bgcolor: '#F9FAFB' } }}

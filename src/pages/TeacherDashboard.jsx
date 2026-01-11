@@ -239,9 +239,9 @@ const TeacherDashboard = () => {
                     Ingelogd als docent
                 </Typography>
                 <Box sx={{ display: 'flex', gap: 1 }}>
-                    <Button 
-                        variant="outlined" 
-                        size="small" 
+                    <Button
+                        variant="outlined"
+                        size="small"
                         startIcon={<HelpOutlineIcon />}
                         onClick={() => navigate('/teacher/help')}
                     >

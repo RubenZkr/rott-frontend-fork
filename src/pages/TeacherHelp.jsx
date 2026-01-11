@@ -96,13 +96,13 @@ const TeacherHelp = () => {
                 <Box>
                     <Typography variant="subtitle1" fontWeight={600} gutterBottom>Stap 1: Start nieuwe toets</Typography>
                     <Typography paragraph>Klik op de knop <strong>"Nieuwe Toets"</strong> (linksboven)</Typography>
-                    
+
                     <Typography variant="subtitle1" fontWeight={600} gutterBottom>Stap 2: Vul basisgegevens in</Typography>
                     <List dense>
                         <ListItem><ListItemText primary="Toetsnaam: Geef een duidelijke naam (bijv. 'Hoofdstuk 3 - Netwerken')" /></ListItem>
                         <ListItem><ListItemText primary="Vak: Selecteer het vak waarvoor de toets is" /></ListItem>
                     </List>
-                    
+
                     <Typography variant="subtitle1" fontWeight={600} gutterBottom>Stap 3: Upload bronmateriaal</Typography>
                     <Typography paragraph>Upload een of meerdere bestanden waaruit de vragen gegenereerd worden:</Typography>
                     <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
@@ -113,13 +113,13 @@ const TeacherHelp = () => {
                     <Alert severity="warning" sx={{ mb: 2 }}>
                         <strong>Let op:</strong> De AI genereert vragen op basis van de geüploade inhoud. Zorg voor relevante en complete bronnen.
                     </Alert>
-                    
+
                     <Typography variant="subtitle1" fontWeight={600} gutterBottom>Stap 4: Configureer vraagaantallen</Typography>
                     <Typography paragraph>Geef aan hoeveel meerkeuzevragen je wilt (vragen met 4 antwoordopties, 1 correct).</Typography>
                     <Alert severity="info" sx={{ mb: 2 }}>
                         <strong>Tip:</strong> Start met 5-10 vragen voor een korte toets.
                     </Alert>
-                    
+
                     <Typography variant="subtitle1" fontWeight={600} gutterBottom>Stap 5: Genereer de toets</Typography>
                     <Typography paragraph>
                         1. Klik op <strong>"Genereer Toets"</strong><br />
@@ -140,10 +140,10 @@ const TeacherHelp = () => {
                         1. Ga naar de <strong>Toetsen</strong> tab<br />
                         2. Je ziet een overzicht met: Toetsnaam, Vak, Aantal vragen, Status
                     </Typography>
-                    
+
                     <Typography variant="subtitle1" fontWeight={600} gutterBottom>Toets openen</Typography>
                     <Typography paragraph>Klik op <strong>"Bekijk"</strong> om de toets te openen en de vragen te zien.</Typography>
-                    
+
                     <Typography variant="subtitle1" fontWeight={600} gutterBottom>Toets verwijderen</Typography>
                     <Typography paragraph>
                         1. Klik op het 🗑️ prullenbak icoon bij de toets<br />
@@ -186,7 +186,7 @@ const TeacherHelp = () => {
                         2. Klik op <strong>"Publiceer"</strong> bij een concept-toets<br />
                         3. Optioneel: Stel een beschikbaarheidsperiode in
                     </Typography>
-                    
+
                     <Typography variant="subtitle1" fontWeight={600} gutterBottom>Depubliceren</Typography>
                     <Typography paragraph>
                         1. Open een gepubliceerde toets<br />
@@ -210,7 +210,7 @@ const TeacherHelp = () => {
                         2. Klik op <strong>"Statistieken"</strong> bij een gepubliceerde toets<br />
                         3. Je ziet: Totaal pogingen, Gemiddelde score, Moeilijke vragen, Scores per student
                     </Typography>
-                    
+
                     <Typography variant="subtitle1" fontWeight={600} gutterBottom>Klasoverzicht</Typography>
                     <Typography paragraph>
                         Ga naar <strong>Statistieken</strong> tab voor het totaaloverzicht met klasgemiddelde, top presteerders en aantal voldoendes/onvoldoendes.
@@ -231,7 +231,7 @@ const TeacherHelp = () => {
                         3. Vul naam en beschrijving in<br />
                         4. Klik op <strong>"Opslaan"</strong>
                     </Typography>
-                    
+
                     <Typography variant="subtitle1" fontWeight={600} gutterBottom>Vak bewerken/verwijderen</Typography>
                     <Typography paragraph>
                         Gebruik de ✏️ bewerk of 🗑️ verwijder iconen bij het vak.
@@ -254,7 +254,7 @@ const TeacherHelp = () => {
                         2. Klik op een student in de tabel<br />
                         3. Je ziet: Gemaakte toetsen, Scores per toets, Gemiddeld cijfer, Voortgang
                     </Typography>
-                    
+
                     <Typography variant="subtitle1" fontWeight={600} gutterBottom>Voortgang interpreteren</Typography>
                     <List dense>
                         <ListItem><ListItemText primary="Voortgang % = Percentage van gepubliceerde toetsen dat de student heeft gemaakt" /></ListItem>
@@ -292,12 +292,12 @@ const TeacherHelp = () => {
                     <Typography paragraph>
                         De AI analyseert de geüploade documenten en genereert unieke vragen. Dit kan 1-3 minuten duren afhankelijk van de hoeveelheid tekst.
                     </Typography>
-                    
+
                     <Typography variant="subtitle1" fontWeight={600} gutterBottom>Kan ik vragen handmatig aanpassen?</Typography>
                     <Typography paragraph>
                         Momenteel kun je vragen alleen hergenereren. Handmatig bewerken is gepland voor een toekomstige versie.
                     </Typography>
-                    
+
                     <Typography variant="subtitle1" fontWeight={600} gutterBottom>Hoeveel studenten kunnen tegelijk een toets maken?</Typography>
                     <Typography paragraph>
                         De applicatie ondersteunt meerdere studenten tegelijk. Er is geen limiet op het aantal gelijktijdige pogingen.
