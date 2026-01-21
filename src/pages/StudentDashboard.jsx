@@ -204,7 +204,7 @@ const StudentDashboard = () => {
                                 </TableHead>
                                 <TableBody>
                                     {stats.recent_attempts && stats.recent_attempts.map((attempt) => (
-                                        <TableRow key={attempt.attempt_id} hover sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                                        <TableRow key={attempt.id} hover sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                                             <TableCell sx={{ fontWeight: 500, color: '#111827' }}>{attempt.quiz_title}</TableCell>
                                             <TableCell sx={{ color: '#6B7280' }}>
                                                 {/* Assuming subject is available or using placeholder/mock logic if not in API yet */}
@@ -225,11 +225,11 @@ const StudentDashboard = () => {
                                                     minWidth: 40,
                                                     justifyContent: 'center'
                                                 }}>
-                                                    {attempt.grade.toFixed(1)}
+                                                    {attempt.grade?.toFixed(1) || '-'}
                                                 </Box>
                                             </TableCell>
                                             <TableCell>
-                                                <Button size="small" onClick={() => handleViewResults(attempt.attempt_id)} sx={{ minWidth: 'auto' }}>
+                                                <Button size="small" onClick={() => handleViewResults(attempt.id)} sx={{ minWidth: 'auto' }}>
                                                     Details
                                                 </Button>
                                             </TableCell>
