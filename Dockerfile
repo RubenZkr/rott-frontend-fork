@@ -15,8 +15,14 @@ FROM nginx
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY --from=build-step /app/build /usr/share/nginx/html
 
+# Add script to use PORT environment variable
+RUN echo '#!/bin/sh\n\
+    PORT=${PORT:-80}\n\
+    sed -i "s/listen 80;/listen $PORT;/" /etc/nginx/nginx.conf\n\
+    nginx -g "daemon off;"' > /start.sh && chmod +x /start.sh
+
 EXPOSE 80
 
 STOPSIGNAL SIGTERM
 
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["/start.sh"]
