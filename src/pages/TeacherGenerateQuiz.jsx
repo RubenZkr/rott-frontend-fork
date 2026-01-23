@@ -42,8 +42,6 @@ const TeacherGenerateQuiz = () => {
     });
     const [isGenerating, setIsGenerating] = useState(false);
     const [progress, setProgress] = useState('');
-    const [queuePosition, setQueuePosition] = useState(0);
-    const [queueTotal, setQueueTotal] = useState(0);
     const [error, setError] = useState('');
 
     useEffect(() => {
@@ -129,8 +127,6 @@ const TeacherGenerateQuiz = () => {
                     const progressData = JSON.parse(event.data);
                     const message = progressData.message || event.data;
                     setProgress(message);
-                    setQueuePosition(progressData.queue_position || 0);
-                    setQueueTotal(progressData.queue_total || 0);
 
                     if (message.includes('voltooid') || message.includes('Quiz generatie compleet')) {
                         eventSource.close();
@@ -390,16 +386,9 @@ const TeacherGenerateQuiz = () => {
                             {isGenerating && (
                                 <Box>
                                     <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
-                                        <Box>
-                                            <Typography variant="body2" sx={{ fontWeight: 600, color: '#1F2937' }}>
-                                                Genereren...
-                                            </Typography>
-                                            {queueTotal > 1 && queuePosition > 0 && (
-                                                <Typography variant="caption" sx={{ color: '#6B7280' }}>
-                                                    Positie in wachtrij: {queuePosition} van {queueTotal}
-                                                </Typography>
-                                            )}
-                                        </Box>
+                                        <Typography variant="body2" sx={{ fontWeight: 600, color: '#1F2937' }}>
+                                            Genereren...
+                                        </Typography>
                                         <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'right', maxWidth: '60%' }}>
                                             {progress}
                                         </Typography>
